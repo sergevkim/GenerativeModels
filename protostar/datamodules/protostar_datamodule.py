@@ -13,10 +13,13 @@ class ProtostarDataset(Dataset):
         ):
         pass
 
-    def __len__(self):
+    def __len__(self) -> int:
         pass
 
-    def __getitem__(self, idx):
+    def __getitem__(
+            self,
+            idx: int,
+        ):
         pass
 
 
@@ -39,14 +42,12 @@ class ProtostarDataModule:
 
     def setup(
             self,
-            val_ratio,
-        ):
+            val_ratio: float,
+        ) -> None:
         data = self.prepare_data(
             data_dir=self.data_dir,
         )
         full_dataset = ProtostarDataset(
-            filenames=wav_filenames,
-            targets=targets,
         )
 
         full_size = len(full_dataset)

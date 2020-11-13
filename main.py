@@ -11,7 +11,7 @@ from protostar.trainer import Trainer
 
 def main(args):
     model = ProtostarModel()
-    datamodule = SpeechCommandsDataModule(
+    datamodule = ProtostarDataModule(
         data_dir=args.data_dir,
         batch_size=args.batch_size,
         num_workers=args.num_workers,
