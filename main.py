@@ -12,7 +12,7 @@ from protostar.trainer import Trainer
 def main(args):
     model = ProtostarModel()
     datamodule = ProtostarDataModule(
-        data_dir=args.data_dir,
+        data_path=args.data_path,
         batch_size=args.batch_size,
         num_workers=args.num_workers,
     )

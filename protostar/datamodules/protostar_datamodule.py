@@ -26,17 +26,17 @@ class ProtostarDataset(Dataset):
 class ProtostarDataModule:
     def __init__(
             self,
-            data_dir: Path,
+            data_path: Path,
             batch_size: int,
             num_workers: int,
         ):
-        self.data_dir = data_dir
+        self.data_path = data_path
         self.batch_size = batch_size
         self.num_workers = num_workers
 
     @staticmethod
     def prepare_data(
-            data_dir: Path,
+            data_path: Path,
         ):
         pass
 
@@ -45,7 +45,7 @@ class ProtostarDataModule:
             val_ratio: float,
         ) -> None:
         data = self.prepare_data(
-            data_dir=self.data_dir,
+            data_path=self.data_path,
         )
         full_dataset = ProtostarDataset(
         )
