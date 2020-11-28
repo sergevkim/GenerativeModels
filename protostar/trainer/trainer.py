@@ -1,12 +1,16 @@
 from pathlib import Path
+from typing import List
 
 import torch
-import torch.nn.utils as utils
-import tqdm
 from torch import Tensor
 from torch.nn import Module
+import torch.nn.utils as utils
+from torch.optim.lr_scheduler import _LRScheduler
 from torch.optim.optimizer import Optimizer
 from torch.utils.data import DataLoader
+import tqdm
+
+from protostar.datamodules import ProtostarDataModule
 
 
 class Trainer:
@@ -64,27 +68,32 @@ class Trainer:
             self,
             model: Module,
             val_dataloader: DataLoader,
+            scheduler: _LRScheduler,
             epoch_idx: int,
         ) -> None:
         model.eval()
-        loss_sum = 0
+        losses = list()
 
         for batch_idx, batch in enumerate(tqdm.tqdm(val_dataloader)):
             loss = model.validation_step(batch, batch_idx)
-            loss_sum += loss.item()
+            losses.append(loss.item())
             model.validation_step_end()
 
-        print(epoch_idx, loss_sum)
+        average_loss = sum(losses) / len(losses)
+        scheduler.step()
         model.validation_epoch_end(epoch_idx=epoch_idx)
+
+        if self.verbose:
+            print(epoch_idx, average_loss)
 
     def fit(
             self,
             model: Module,
-            datamodule,
+            datamodule: ProtostarDataModule,
         ) -> None:
         train_dataloader = datamodule.train_dataloader()
         val_dataloader = datamodule.val_dataloader()
-        optimizer = model.configure_optimizers()
+        optimizer, scheduler = model.configure_optimizers()
 
         self.validation_epoch(
             model=model,
@@ -102,6 +111,7 @@ class Trainer:
                 model=model,
                 val_dataloader=val_dataloader,
                 epoch_idx=epoch_idx,
+                scheduler=scheduler,
             )
             if epoch_idx % 5 == 0:
                 self.save_checkpoint(
@@ -115,7 +125,7 @@ class Trainer:
     def predict(
             self,
             model: Module,
-            datamodule,
+            datamodule: ProtostarDataModule,
         ) -> List[Tensor]:
         test_dataloader = datamodule.test_dataloader()
 

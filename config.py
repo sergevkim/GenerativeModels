@@ -12,6 +12,8 @@ class Arguments:
     learning_rate: float = 3e-4
     max_epoch: int = 10
     num_workers: int = 4
+    scheduler_gamma: float = 0.5
+    scheduler_step_size: int = 10
     val_ratio: float = 0.1
     verbose: bool = True
     version: str = '0.0.1'

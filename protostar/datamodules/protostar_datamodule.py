@@ -4,8 +4,6 @@ import torch
 from torch import Tensor
 from torch.utils.data import Dataset, DataLoader
 
-from protostar.utils import TokenConverter
-
 
 class ProtostarDataset(Dataset):
     def __init__(

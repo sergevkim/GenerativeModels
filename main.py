@@ -10,7 +10,12 @@ from config import Arguments
 
 
 def main(args):
-    model = ProtostarModel()
+    model = ProtostarModel(
+        learning_rate=args.learning_rate
+        scheduler_gamma=args.scheduler_gamma,
+        scheduler_step_size=args.scheduler_step_size,
+        verbose=args.verbose,
+    )
     datamodule = ProtostarDataModule(
         data_path=args.data_path,
         batch_size=args.batch_size,
@@ -33,8 +38,8 @@ def main(args):
 
 
 if __name__ == "__main__":
-    parser = ArgumentParser()
-    args = parser.parse_args()
+    #parser = ArgumentParser()
+    #args = parser.parse_args()
     args = Arguments()
 
     main(args)
