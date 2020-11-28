@@ -3,6 +3,7 @@ from pathlib import Path
 import torch
 import torch.nn.utils as utils
 import tqdm
+from torch import Tensor
 from torch.nn import Module
 from torch.optim.optimizer import Optimizer
 from torch.utils.data import DataLoader
@@ -27,7 +28,7 @@ class Trainer:
             optimizer: Optimizer,
             epoch_idx: int,
             checkpoints_dir: Path,
-        ):
+        ) -> None:
         checkpoint = {
             'model': model,
             'optimizer': optimizer,
@@ -45,7 +46,7 @@ class Trainer:
             train_dataloader: DataLoader,
             optimizer: Optimizer,
             epoch_idx: int,
-        ):
+        ) -> None:
         model.train()
 
         for batch_idx, batch in enumerate(tqdm.tqdm(train_dataloader)):
@@ -64,7 +65,7 @@ class Trainer:
             model: Module,
             val_dataloader: DataLoader,
             epoch_idx: int,
-        ):
+        ) -> None:
         model.eval()
         loss_sum = 0
 
@@ -80,7 +81,7 @@ class Trainer:
             self,
             model: Module,
             datamodule,
-        ):
+        ) -> None:
         train_dataloader = datamodule.train_dataloader()
         val_dataloader = datamodule.val_dataloader()
         optimizer = model.configure_optimizers()
@@ -110,14 +111,12 @@ class Trainer:
                     checkpoints_dir=Path.cwd() / "models",
                 )
 
-        return model
-
     @torch.no_grad()
     def predict(
             self,
             model: Module,
             datamodule,
-        ):
+        ) -> List[Tensor]:
         test_dataloader = datamodule.test_dataloader()
 
         predicts = list()

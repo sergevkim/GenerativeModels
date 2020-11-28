@@ -1,12 +1,12 @@
 from argparse import ArgumentParser
 from pathlib import Path
 
-import torch
-
 from protostar.datamodules import ProtostarDataModule
 from protostar.loggers import NeptuneLogger
 from protostar.models import ProtostarModel
 from protostar.trainer import Trainer
+
+from config import Arguments
 
 
 def main(args):
@@ -35,6 +35,7 @@ def main(args):
 if __name__ == "__main__":
     parser = ArgumentParser()
     args = parser.parse_args()
+    args = Arguments()
 
     main(args)
 
