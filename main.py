@@ -29,6 +29,8 @@ def main(args):
     )
     trainer = Trainer(
         logger=logger,
+        verbose=args.verbose,
+        version=args.version,
     )
 
     trainer.fit(

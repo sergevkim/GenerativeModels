@@ -7,7 +7,7 @@ import torch
 @dataclass
 class Arguments:
     batch_size: int = 64
-    data_path: Path = Path('/Users/sergevkim/git/sergevkim/SpeechRecognition/data/LJSpeech-1.1')
+    data_path: Path = Path('./data')
     device: torch.device = torch.device('cuda:0' if torch.cuda.is_available() else 'cpu')
     learning_rate: float = 3e-4
     max_epoch: int = 10
