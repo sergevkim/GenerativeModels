@@ -6,7 +6,12 @@ from protostar.loggers import NeptuneLogger
 from protostar.models import ProtostarModel
 from protostar.trainer import Trainer
 
-from config import Arguments
+from config import (
+    CommonArguments,
+    DataArguments,
+    TrainArguments,
+    SpecificArguments,
+)
 
 
 def main(args):
@@ -40,9 +45,24 @@ def main(args):
 
 
 if __name__ == "__main__":
-    #parser = ArgumentParser()
-    #args = parser.parse_args()
-    args = Arguments()
+    parser = ArgumentParser()
+    default_args_dict = {
+        **vars(CommonArguments()),
+        **vars(DataArguments()),
+        **vars(TrainArguments()),
+        **vars(SpecificArguments()),
+    }
+
+    for arg, value in default_args_dict.items():
+        parser.add_argument(
+            f'--{arg}',
+            type=type(value),
+            default=value,
+            help=f'<{arg}>, default: {value}',
+        )
+
+    args = parser.parse_args()
 
     main(args)
+
 
