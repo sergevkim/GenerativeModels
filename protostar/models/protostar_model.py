@@ -34,10 +34,16 @@ class ProtostarModel(Module):
         ) -> Tensor:
         pass
 
-    def training_step_end(self):
+    def training_step_end(
+            self,
+            batch_idx: int,
+        ):
         pass
 
-    def training_epoch_end(self):
+    def training_epoch_end(
+            self,
+            epoch_idx: int,
+        ):
         pass
 
     def validation_step(
@@ -47,10 +53,16 @@ class ProtostarModel(Module):
         ) -> Tensor:
         pass
 
-    def validation_step_end(self):
+    def validation_step_end(
+            self,
+            batch_idx: int,
+        ):
         pass
 
-    def validation_epoch_end(self):
+    def validation_epoch_end(
+            self,
+            epoch_idx: int,
+        ):
         pass
 
     def configure_optimizers(
