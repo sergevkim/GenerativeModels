@@ -41,7 +41,7 @@ class Trainer:
             checkpoint[f'optimizer_{i}'] = optimizer
             checkpoint[f'optimizer_{i}_state_dict'] = optimizer.state_dict()
 
-        checkpoint_path = checkpoints_dir / f"v{self.version}-e{epoch_idx}.hdf5"
+        checkpoint_path = checkpoints_dir / f"v{self.version}-e{epoch_idx}.pt"
         torch.save(checkpoint, checkpoint_path)
 
     def load_checkpoint(
