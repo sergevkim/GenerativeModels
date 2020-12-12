@@ -1,4 +1,4 @@
-from typing import Tuple
+from typing import List, Tuple
 
 import torch
 from torch import Tensor
@@ -53,7 +53,9 @@ class ProtostarModel(Module):
     def validation_epoch_end(self):
         pass
 
-    def configure_optimizers(self) -> Tuple[Optimizer, _LRScheduler]:
+    def configure_optimizers(
+            self,
+        ) -> Tuple[List[Optimizer], List[_LRScheduler]]:
         optimizer = Adam(
             params=self.parameters(),
             lr=self.learning_rate,
@@ -65,5 +67,5 @@ class ProtostarModel(Module):
             verbose=self.verbose,
         )
 
-        return optimizer, scheduler
+        return [optimizer], [scheduler]
 
