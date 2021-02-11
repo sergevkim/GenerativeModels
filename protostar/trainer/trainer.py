@@ -10,6 +10,8 @@ from torch.optim.lr_scheduler import _LRScheduler
 from torch.optim.optimizer import Optimizer
 from torch.utils.data import DataLoader
 
+from protostar import BaseModule, BaseDataModule
+
 
 class Trainer:
     def __init__(
@@ -24,12 +26,13 @@ class Trainer:
         self.verbose = verbose
         self.version = version
 
+    @classmethod
     def save_checkpoint(
             self,
             model: Module,
-            optimizers: Optimizer,
+            optimizers: List[Optimizer],
             epoch_idx: int,
-            checkpoints_dir: Path,
+            checkpoint_path: Path,
         ) -> None:
         checkpoint = {
             'model': model,
@@ -37,15 +40,18 @@ class Trainer:
             'epoch_idx': epoch_idx,
         }
 
-        for i, optimizer in enumerate(optimizers):
-            checkpoint[f'optimizer_{i}'] = optimizer
-            checkpoint[f'optimizer_{i}_state_dict'] = optimizer.state_dict()
+        if len(optimizers) == 1:
+            checkpoint['optimizer'] = optimizer
+            checkpoint['optimizer_state_dict'] = optimizer.state_dict()
+        else:
+            for i, optimizer in enumerate(optimizers):
+                checkpoint[f'optimizer_{i}'] = optimizer
+                checkpoint[f'optimizer_{i}_state_dict'] = optimizer.state_dict()
 
-        checkpoint_path = checkpoints_dir / f"v{self.version}-e{epoch_idx}.pt"
         torch.save(checkpoint, checkpoint_path)
 
+    @classmethod
     def load_checkpoint(
-            self,
             model: Module,
             optimizers: List[Optimizer],
             checkpoint_path: Path,
@@ -59,7 +65,7 @@ class Trainer:
     @torch.enable_grad()
     def training_epoch(
             self,
-            model: Module,
+            model: BaseModule,
             train_dataloader: DataLoader,
             optimizers: List[Optimizer],
             epoch_idx: int,
@@ -68,18 +74,18 @@ class Trainer:
         losses = list()
 
         for batch_idx, batch in enumerate(tqdm.tqdm(train_dataloader)):
-            loss = model.training_step(
-                batch=batch,
-                batch_idx=batch_idx,
-            )
-            losses.append(loss.item())
-            loss.backward()
-            utils.clip_grad_norm_(
-                parameters=model.parameters(),
-                max_norm=10,
-            )
-
-            for optimizer in optimizers:
+            for optimizer_idx, optimizer in enumerate(optimizers):
+                loss = model.training_step(
+                    batch=batch,
+                    batch_idx=batch_idx,
+                    optimizer_idx=optimizer_idx,
+                )
+                losses.append(loss.item())
+                loss.backward()
+                utils.clip_grad_norm_(
+                    parameters=model.parameters(),
+                    max_norm=10,
+                )
                 optimizer.step()
                 optimizer.zero_grad()
 
@@ -95,7 +101,7 @@ class Trainer:
     @torch.no_grad()
     def validation_epoch(
             self,
-            model: Module,
+            model: BaseModule,
             val_dataloader: DataLoader,
             schedulers: List[_LRScheduler],
             epoch_idx: int,
@@ -123,8 +129,8 @@ class Trainer:
 
     def fit(
             self,
-            model: Module,
-            datamodule,
+            model: BaseModule,
+            datamodule: BaseDataModule,
         ) -> None:
         train_dataloader = datamodule.train_dataloader()
         val_dataloader = datamodule.val_dataloader()
@@ -150,18 +156,20 @@ class Trainer:
                 epoch_idx=epoch_idx,
             )
             if epoch_idx % 5 == 0:
+                checkpoint_path = \
+                    Path.cwd() / 'models' / 'v{self.version}-e{epoch_idx}.pt'
                 self.save_checkpoint(
                     model=model,
                     optimizers=optimizers,
                     epoch_idx=epoch_idx,
-                    checkpoints_dir=Path.cwd() / "models",
+                    checkpoint_path=checkpoint_path,
                 )
 
     @torch.no_grad()
     def predict(
             self,
-            model: Module,
-            datamodule,
+            model: BaseModule,
+            datamodule: BaseDataModule,
         ) -> List[Tensor]:
         test_dataloader = datamodule.test_dataloader()
 
