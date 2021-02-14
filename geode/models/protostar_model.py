@@ -7,22 +7,19 @@ from torch.optim.lr_scheduler import _LRScheduler, StepLR
 from torch.optim.optimizer import Optimizer
 from torchaudio.transforms import MelSpectrogram
 
-from protostar.models import BaseModel
+from geode.models import BaseModule
 
 
-class ProtostarModel(BaseModel):
+class ProtostarModel(BaseModule):
     def __init__(
             self,
-            #device: torch.device,
-            #learning_rate: float,
-            #scheduler_step_size: int,
-            #scheduler_gamma: float,
-            #verbose: bool,
+            device: torch.device,
+            learning_rate: float,
+            scheduler_step_size: int,
+            scheduler_gamma: float,
+            verbose: bool,
         ):
         super().__init__()
-        self.ms = MelSpectrogram()
-        from torch.nn import Linear
-        self.l = Linear(12, 12)
 
     def forward(
             self,
@@ -59,9 +56,4 @@ class ProtostarModel(BaseModel):
         )
 
         return [optimizer], [scheduler]
-
-
-if __name__ == '__main__':
-    m = ProtostarModel()
-    print(m)
 

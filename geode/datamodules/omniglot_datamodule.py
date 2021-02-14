@@ -3,11 +3,25 @@
 #!/usr/bin/env python3
 
 import os
-from torch.utils.data import Dataset, ConcatDataset
+
+import torch
+from torch.utils.data import (
+    ConcatDataset,
+    Dataset,
+)
 from torchvision.datasets.omniglot import Omniglot
+from torchvision.transforms import (
+    Compose,
+    Normalize,
+    Resize,
+    ToTensor,
+)
+
+from geode.datamodules.base_datamodule import BaseDataModule
+from geode.datamodules.utils import InvertImage
 
 
-class FullOmniglot(Dataset):
+class OmniglotDataset(Dataset):
     """
 
     [[Source]]()
@@ -76,3 +90,43 @@ class FullOmniglot(Dataset):
             character_class = self.target_transform(character_class)
 
         return image, character_class
+
+
+class OmniglotDataModule(BaseDataModule):
+    def setup(
+        self,
+        val_ratio: float = 0.1,
+        download: bool = False
+    ) -> None:
+        data_transforms = Compose([
+            Resize((64, 64)),
+            ToTensor(),
+            InvertImage(),
+            Normalize([0.5], [0.5]),
+        ])
+        full_dataset = OmniglotDataset(
+            root=self.data_path,
+            transform=data_transforms,
+            download=download,
+        )
+
+        full_size = len(full_dataset)
+        val_size = int(val_ratio * full_size)
+        train_size = full_size - val_size
+
+        self.train_dataset, self.val_dataset = torch.utils.data.random_split(
+            dataset=full_dataset,
+            lengths=[train_size, val_size],
+        )
+
+
+if __name__ == '__main__':
+    dm = OmniglotDataModule(
+        data_path='./data/',
+        batch_size=64,
+        num_workers=4,
+    )
+    dm.setup(download=True)
+    dl = dm.train_dataloader()
+    print(len(dl))
+

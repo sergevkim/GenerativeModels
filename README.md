@@ -1,4 +1,7 @@
-# Project Title
+# GEnerative mODEls
+
+1. install module: `./scripts/install_module.sh`
+2. download data: `python geode/datamodules/omniglot_datamodule.py`
 
 One Paragraph of project description goes here
 
