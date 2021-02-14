@@ -16,7 +16,7 @@ from config import (
 
 def main(args):
     model = ProtostarModel(
-        learning_rate=args.learning_rate
+        learning_rate=args.learning_rate,
         scheduler_gamma=args.scheduler_gamma,
         scheduler_step_size=args.scheduler_step_size,
         verbose=args.verbose,

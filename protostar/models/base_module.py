@@ -1,3 +1,5 @@
+import abc
+from abc import ABC
 from typing import List, Tuple
 
 import torch
@@ -8,24 +10,27 @@ from torch.optim.lr_scheduler import _LRScheduler
 from torch.optim.optimizer import Optimizer
 
 
-class BaseModel(Module):
+class BaseModule(ABC, Module):
+    @abc.abstractmethod
     def __init__(
             self,
         ):
-        super().__init__()
+        raise NotImplementedError
 
+    @abc.abstractmethod
     def forward(
             self,
             x: Tensor,
         ) -> Tensor:
-        pass
+        raise NotImplementedError
 
+    @abc.abstractmethod
     def training_step(
             self,
             batch: Tensor,
             batch_idx: int,
         ) -> Tensor:
-        pass
+        raise NotImplementedError
 
     def training_step_end(
             self,
@@ -39,12 +44,13 @@ class BaseModel(Module):
         ):
         pass
 
+    @abc.abstractmethod
     def validation_step(
             self,
             batch: Tensor,
             batch_idx: int,
         ) -> Tensor:
-        pass
+        raise NotImplementedError
 
     def validation_step_end(
             self,
@@ -56,10 +62,11 @@ class BaseModel(Module):
             self,
             epoch_idx: int,
         ):
-        pass
+        raise NotImplementedError
 
+    @abc.abstractmethod
     def configure_optimizers(
             self,
         ) -> Tuple[List[Optimizer], List[_LRScheduler]]:
-        pass
+        raise NotImplementedError
 

@@ -20,9 +20,6 @@ class ProtostarModel(BaseModel):
             #verbose: bool,
         ):
         super().__init__()
-        self.ms = MelSpectrogram()
-        from torch.nn import Linear
-        self.l = Linear(12, 12)
 
     def forward(
             self,
@@ -59,9 +56,4 @@ class ProtostarModel(BaseModel):
         )
 
         return [optimizer], [scheduler]
-
-
-if __name__ == '__main__':
-    m = ProtostarModel()
-    print(m)
 

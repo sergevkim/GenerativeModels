@@ -10,7 +10,8 @@ from torch.optim.lr_scheduler import _LRScheduler
 from torch.optim.optimizer import Optimizer
 from torch.utils.data import DataLoader
 
-from protostar import BaseModule, BaseDataModule
+from protostar.datamodules import BaseDataModule
+from protostar.models import BaseModule
 
 
 class Trainer:
