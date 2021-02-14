@@ -7,17 +7,17 @@ from torch.optim.lr_scheduler import _LRScheduler, StepLR
 from torch.optim.optimizer import Optimizer
 from torchaudio.transforms import MelSpectrogram
 
-from protostar.models import BaseModel
+from protostar.models import BaseModule
 
 
-class ProtostarModel(BaseModel):
+class ProtostarModel(BaseModule):
     def __init__(
             self,
-            #device: torch.device,
-            #learning_rate: float,
-            #scheduler_step_size: int,
-            #scheduler_gamma: float,
-            #verbose: bool,
+            device: torch.device,
+            learning_rate: float,
+            scheduler_step_size: int,
+            scheduler_gamma: float,
+            verbose: bool,
         ):
         super().__init__()
 

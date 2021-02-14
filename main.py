@@ -5,6 +5,7 @@ from protostar.datamodules import ProtostarDataModule
 from protostar.loggers import NeptuneLogger
 from protostar.models import ProtostarModel
 from protostar.trainer import Trainer
+from protostar.utils.randomer import Randomer
 
 from config import (
     CommonArguments,
@@ -15,11 +16,14 @@ from config import (
 
 
 def main(args):
+    Randomer.set_seed(seed=args.seed)
+
     model = ProtostarModel(
         learning_rate=args.learning_rate,
         scheduler_gamma=args.scheduler_gamma,
         scheduler_step_size=args.scheduler_step_size,
         verbose=args.verbose,
+        device=args.device,
     )
     datamodule = ProtostarDataModule(
         data_path=args.data_path,

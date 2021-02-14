@@ -29,7 +29,7 @@ class BaseDataModule(ABC):
             self,
             val_ratio: float,
         ) -> None:
-        raise NotImplementedError
+        pass
 
     @property
     def train_dataloader(self) -> DataLoader:

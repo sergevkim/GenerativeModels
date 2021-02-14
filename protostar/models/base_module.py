@@ -15,14 +15,14 @@ class BaseModule(ABC, Module):
     def __init__(
             self,
         ):
-        raise NotImplementedError
+        pass
 
     @abc.abstractmethod
     def forward(
             self,
             x: Tensor,
         ) -> Tensor:
-        raise NotImplementedError
+        pass
 
     @abc.abstractmethod
     def training_step(
@@ -30,7 +30,7 @@ class BaseModule(ABC, Module):
             batch: Tensor,
             batch_idx: int,
         ) -> Tensor:
-        raise NotImplementedError
+        pass
 
     def training_step_end(
             self,
@@ -50,7 +50,7 @@ class BaseModule(ABC, Module):
             batch: Tensor,
             batch_idx: int,
         ) -> Tensor:
-        raise NotImplementedError
+        pass
 
     def validation_step_end(
             self,
@@ -62,11 +62,11 @@ class BaseModule(ABC, Module):
             self,
             epoch_idx: int,
         ):
-        raise NotImplementedError
+        pass
 
     @abc.abstractmethod
     def configure_optimizers(
             self,
         ) -> Tuple[List[Optimizer], List[_LRScheduler]]:
-        raise NotImplementedError
+        pass
 
