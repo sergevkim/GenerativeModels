@@ -1,5 +1,5 @@
 import abc
-from abc import ABC
+from abc import ABCMeta
 from typing import List, Tuple
 
 import torch
@@ -10,12 +10,14 @@ from torch.optim.lr_scheduler import _LRScheduler
 from torch.optim.optimizer import Optimizer
 
 
-class BaseModule(ABC, Module):
-    @abc.abstractmethod
+class BaseModule(
+        Module,
+        metaclass=ABCMeta,
+    ):
     def __init__(
             self,
         ):
-        pass
+        super().__init__()
 
     @abc.abstractmethod
     def forward(

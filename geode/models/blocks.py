@@ -7,49 +7,47 @@ from torch.nn import (
     BatchNorm2d,
     Conv2d,
     ConvTranspose2d,
-    LeakyReLU,
+    MaxPool2d,
     Module,
     ModuleDict,
+    ReLU,
     Sequential,
 )
 
 
 class ConvBlock(Module):
     def __init__(
-        self,
-        in_channels: int,
-        out_channels: int,
-        kernel_size: Tuple[int, int] = (3, 3),
-        transposed: bool = False,
-        activation: str = 'relu',
-        negative_slope: float = 0,
-    ):
+            self,
+            in_channels: int,
+            out_channels: int,
+            kernel_size: int = 3,
+            transposed: bool = False,
+            norm: bool = False,
+            pool: bool = False,
+        ):
         super().__init__()
-        convs = ModuleDict(
-            regular=Conv2d(
-                in_channels=in_channels,
-                out_channels=out_channels,
-                kernel_size=kernel_size,
-                padding=kernel_size//2,
-            ),
-            transposed=Conv2d( #TODO
-                in_channels=in_channels,
-                out_channels=out_channels,
-                kernel_size=kernel_size,
-                padding=kernel_size//2,
-            )
+        block_ordered_dict = OrderedDict()
+        block_ordered_dict['conv'] = Conv2d(
+            in_channels=in_channels,
+            out_channels=out_channels,
+            kernel_size=kernel_size,
+            padding=kernel_size//2,
+        ) if transposed else Conv2d(
+            in_channels=in_channels,
+            out_channels=out_channels,
+            kernel_size=kernel_size,
+            padding=kernel_size//2,
         )
-        block_ordered_dict = OrderedDict(
-            conv=convs['transposed' if transposed else 'regular'],
-            norm=BatchNorm2d(
+        if norm:
+            block_ordered_dict['norm'] = BatchNorm2d(
                 num_features=out_channels,
-                momentum=None, #? 
-            ),
-            act=LeakyReLU(
-                negative_slope=0.2,
-                inplace=True,
-            ),
-        )
+                momentum=None, #?
+            )
+        if pool:
+            block_ordered_dict['pool'] = MaxPool2d(
+                kernel_size=2,
+            )
+        block_ordered_dict['act'] = ReLU()
         self.block = Sequential(block_ordered_dict)
 
     def forward(self, x):
