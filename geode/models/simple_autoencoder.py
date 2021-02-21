@@ -24,6 +24,7 @@ class SimpleAutoencoder(BaseModule):
     def __init__(
             self,
             hidden_dim: int = 10,
+            n_channels: int = 1,
             n_blocks: int = 3,
             device: torch.device = torch.device('cpu'),
             learning_rate: float = 3e-4,
@@ -31,7 +32,7 @@ class SimpleAutoencoder(BaseModule):
         super().__init__()
         encoder_ordered_dict = OrderedDict()
         encoder_ordered_dict['block_0'] = ConvBlock(
-            in_channels=3,
+            in_channels=n_channels,
             out_channels=hidden_dim,
         )
         for i in range(1, n_blocks):
@@ -49,11 +50,12 @@ class SimpleAutoencoder(BaseModule):
             )
         decoder_ordered_dict[f'block_{n_blocks - 1}'] = ConvBlock(
             in_channels=hidden_dim,
-            out_channels=hidden_dim,
+            out_channels=n_channels,
         )
         self.decoder = Sequential(decoder_ordered_dict)
 
         self.criterion = MSELoss()
+        self.device = device
         self.learning_rate = learning_rate
 
     def forward(self, x):

@@ -1,13 +1,13 @@
 from argparse import ArgumentParser
 from pathlib import Path
 
-from geode.datamodules import ProtostarDataModule
+from geode.datamodules import OmniglotDataModule
 from geode.loggers import NeptuneLogger
-from geode.models import ProtostarModel
+from geode.models import SimpleAutoencoder
 from geode.trainer import Trainer
 from geode.utils.randomer import Randomer
 
-from configs.protostar_config import (
+from configs.autoencoder_config import (
     CommonArguments,
     DataArguments,
     TrainArguments,
@@ -18,14 +18,13 @@ from configs.protostar_config import (
 def main(args):
     Randomer.set_seed(seed=args.seed)
 
-    model = ProtostarModel(
-        learning_rate=args.learning_rate,
-        scheduler_gamma=args.scheduler_gamma,
-        scheduler_step_size=args.scheduler_step_size,
-        verbose=args.verbose,
+    model = SimpleAutoencoder(
+        hidden_dim=args.hidden_dim,
+        n_blocks=args.n_blocks,
         device=args.device,
+        learning_rate=args.learning_rate,
     )
-    datamodule = ProtostarDataModule(
+    datamodule = OmniglotDataModule(
         data_path=args.data_path,
         batch_size=args.batch_size,
         num_workers=args.num_workers,
@@ -33,11 +32,13 @@ def main(args):
     datamodule.setup(val_ratio=args.val_ratio)
 
     logger = NeptuneLogger(
-        api_key=None,
-        project_name=None,
+        api_token=args.neptune_api_token,
+        project_name=args.neptune_project_name,
+        experiment_name=args.neptune_experiment_name,
     )
     trainer = Trainer(
         logger=logger,
+        max_epoch=args.max_epoch,
         verbose=args.verbose,
         version=args.version,
     )

@@ -94,10 +94,10 @@ class OmniglotDataset(Dataset):
 
 class OmniglotDataModule(BaseDataModule):
     def setup(
-        self,
-        val_ratio: float = 0.1,
-        download: bool = False
-    ) -> None:
+            self,
+            val_ratio: float = 0.1,
+            download: bool = False
+        ) -> None:
         data_transforms = Compose([
             Resize((64, 64)),
             ToTensor(),

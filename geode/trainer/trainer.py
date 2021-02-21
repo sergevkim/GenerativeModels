@@ -133,8 +133,8 @@ class Trainer:
             model: BaseModule,
             datamodule: BaseDataModule,
         ) -> None:
-        train_dataloader = datamodule.train_dataloader()
-        val_dataloader = datamodule.val_dataloader()
+        train_dataloader = datamodule.train_dataloader
+        val_dataloader = datamodule.val_dataloader
         optimizers, schedulers = model.configure_optimizers()
 
         self.validation_epoch(
@@ -172,7 +172,7 @@ class Trainer:
             model: BaseModule,
             datamodule: BaseDataModule,
         ) -> List[Tensor]:
-        test_dataloader = datamodule.test_dataloader()
+        test_dataloader = datamodule.test_dataloader
 
         predicts = list()
 

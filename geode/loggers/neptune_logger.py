@@ -10,8 +10,9 @@ class NeptuneLogger:
             self,
             api_token: str,
             project_name: str,
-            experiment_name: str,
-            params: Dict[str, Any],
+            experiment_name: Optional[str] = None,
+            experiment_description: Optional[str] = None,
+            params: Optional[Dict[str, Any]] = None,
         ):
         self.project = neptune.init(
             project_qualified_name=project_name,
@@ -25,7 +26,7 @@ class NeptuneLogger:
     def log_metrics(
             self,
             metrics: Dict[str, Union[Tensor, float]],
-            step: Optional[int]=None,
+            step: Optional[int] = None,
         ) -> None:
         for metric_name, metric_value in metrics.items():
             self.log_metric(
@@ -38,7 +39,7 @@ class NeptuneLogger:
             self,
             metric_name: str,
             metric_value: Union[Tensor, float],
-            step: Optional[int]=None,
+            step: Optional[int] = None,
         ) -> None:
         if step is None:
             neptune.log_metric(
