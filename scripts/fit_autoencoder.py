@@ -23,9 +23,7 @@ def main(args):
         n_blocks=args.n_blocks,
         device=args.device,
         learning_rate=args.learning_rate,
-    )
-
-    print(model)
+    ).to(args.device)
 
     datamodule = OmniglotDataModule(
         data_path=args.data_path,

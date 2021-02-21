@@ -66,7 +66,7 @@ class SimpleAutoencoder(BaseModule):
 
     def training_step(self, batch, batch_idx, optimizer_idx):
         images, _ = batch
-        images.to(self.device)
+        images = images.to(self.device)
 
         predicts = self.forward(images)
         loss = self.criterion(

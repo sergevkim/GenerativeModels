@@ -2,6 +2,9 @@
 
 1. install module: `./scripts/install_module.sh`
 2. download data: `python geode/datamodules/omniglot_datamodule.py`
+3. fit autoencoder: `python scripts/fit_autoencoder.py`
+4. fit classifier: `python scripts/fit_mnist_classifier.py`
+5. fit classifier: `python scripts/fit`
 
 One Paragraph of project description goes here
 
