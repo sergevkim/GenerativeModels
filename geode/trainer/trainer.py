@@ -42,6 +42,7 @@ class Trainer:
         }
 
         if len(optimizers) == 1:
+            optimizer = optimizers[0]
             checkpoint['optimizer'] = optimizer
             checkpoint['optimizer_state_dict'] = optimizer.state_dict()
         else:
@@ -94,6 +95,11 @@ class Trainer:
 
         average_loss = sum(losses) / len(losses)
 
+        self.logger.log_metric(
+            metric_name='average_mse_loss',
+            metric_value=average_loss,
+        )
+
         if self.verbose:
             print(epoch_idx, average_loss)
 
@@ -120,6 +126,11 @@ class Trainer:
 
         average_loss = sum(losses) / len(losses)
 
+        self.logger.log_metric(
+            metric_name='average_mse_loss',
+            metric_value=average_loss,
+        )
+
         if self.verbose:
             print(epoch_idx, average_loss)
 
@@ -133,8 +144,8 @@ class Trainer:
             model: BaseModule,
             datamodule: BaseDataModule,
         ) -> None:
-        train_dataloader = datamodule.train_dataloader
-        val_dataloader = datamodule.val_dataloader
+        train_dataloader = datamodule.train_dataloader()
+        val_dataloader = datamodule.val_dataloader()
         optimizers, schedulers = model.configure_optimizers()
 
         self.validation_epoch(
@@ -172,7 +183,7 @@ class Trainer:
             model: BaseModule,
             datamodule: BaseDataModule,
         ) -> List[Tensor]:
-        test_dataloader = datamodule.test_dataloader
+        test_dataloader = datamodule.test_dataloader()
 
         predicts = list()
 

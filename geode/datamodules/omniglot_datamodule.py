@@ -77,7 +77,7 @@ class OmniglotDataset(Dataset):
 
         self.dataset = ConcatDataset((omni_background, omni_evaluation))
         self._bookkeeping_path = os.path.join(self.root, 'omniglot-bookkeeping.pkl')
-        
+
     def __len__(self):
         return len(self.dataset)
 
@@ -93,6 +93,16 @@ class OmniglotDataset(Dataset):
 
 
 class OmniglotDataModule(BaseDataModule):
+    def __init__(
+            self,
+            data_path,
+            batch_size: int,
+            num_workers: int,
+        ):
+        self.data_path = data_path
+        self.batch_size = batch_size
+        self.num_workers = num_workers
+
     def setup(
             self,
             val_ratio: float = 0.1,
@@ -122,7 +132,7 @@ class OmniglotDataModule(BaseDataModule):
 
 if __name__ == '__main__':
     dm = OmniglotDataModule(
-        data_path='./data/',
+        data_path='./data',
         batch_size=64,
         num_workers=4,
     )

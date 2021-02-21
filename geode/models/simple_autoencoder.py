@@ -64,7 +64,7 @@ class SimpleAutoencoder(BaseModule):
 
         return x
 
-    def training_step(self, batch, batch_idx):
+    def training_step(self, batch, batch_idx, optimizer_idx):
         images, _ = batch
         images.to(self.device)
 
@@ -77,7 +77,7 @@ class SimpleAutoencoder(BaseModule):
         return loss
 
     def validation_step(self, batch, batch_idx):
-        return self.training_step(batch, batch_idx)
+        return self.training_step(batch, batch_idx, 0)
 
     def configure_optimizers(self):
         optimizer = Adam(

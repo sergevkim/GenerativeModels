@@ -5,7 +5,6 @@ from torch import Tensor
 from torch.optim import Adam
 from torch.optim.lr_scheduler import _LRScheduler, StepLR
 from torch.optim.optimizer import Optimizer
-from torchaudio.transforms import MelSpectrogram
 
 from geode.models import BaseModule
 

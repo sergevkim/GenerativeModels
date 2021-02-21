@@ -24,6 +24,9 @@ def main(args):
         device=args.device,
         learning_rate=args.learning_rate,
     )
+
+    print(model)
+
     datamodule = OmniglotDataModule(
         data_path=args.data_path,
         batch_size=args.batch_size,
@@ -36,13 +39,13 @@ def main(args):
         project_name=args.neptune_project_name,
         experiment_name=args.neptune_experiment_name,
     )
+
     trainer = Trainer(
         logger=logger,
         max_epoch=args.max_epoch,
         verbose=args.verbose,
         version=args.version,
     )
-
     trainer.fit(
         model=model,
         datamodule=datamodule,

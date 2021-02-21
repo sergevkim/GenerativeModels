@@ -31,7 +31,6 @@ class BaseDataModule(ABC):
         ) -> None:
         pass
 
-    @property
     def train_dataloader(self) -> DataLoader:
         train_dataloader = DataLoader(
             dataset=self.train_dataset,
@@ -41,7 +40,6 @@ class BaseDataModule(ABC):
 
         return train_dataloader
 
-    @property
     def val_dataloader(self) -> DataLoader:
         val_dataloader = DataLoader(
             dataset=self.val_dataset,
