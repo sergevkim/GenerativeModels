@@ -1,3 +1,4 @@
+from collections import defaultdict
 from pathlib import Path
 from typing import List, Optional
 
@@ -19,11 +20,13 @@ class Trainer:
             self,
             logger,
             max_epoch: int,
-            verbose: bool,
-            version: str,
+            one_batch_overfit: bool = False,
+            verbose: bool = False,
+            version: str = 'v0',
         ):
         self.logger = logger
         self.max_epoch = max_epoch
+        self.one_batch_overfit = one_batch_overfit
         self.verbose = verbose
         self.version = version
 
@@ -73,7 +76,7 @@ class Trainer:
             epoch_idx: int,
         ) -> None:
         model.train()
-        losses = list()
+        metrics = defaultdict(list)
 
         for batch_idx, batch in enumerate(tqdm.tqdm(train_dataloader)):
             for optimizer_idx, optimizer in enumerate(optimizers):
@@ -82,9 +85,14 @@ class Trainer:
                     batch_idx=batch_idx,
                     optimizer_idx=optimizer_idx,
                 )
+
+                for metric_name, value in info.items():
+                    if type(value) is Tensor:
+                        metrics[metric_name].append(value.item())
+                    else:
+                        metrics[metric_name].append(value)
+
                 loss = info['loss']
-                outputs = info['outputs']
-                losses.append(loss.item())
                 loss.backward()
                 utils.clip_grad_norm_(
                     parameters=model.parameters(),
@@ -95,15 +103,15 @@ class Trainer:
 
             model.training_step_end(batch_idx=batch_idx)
 
-        average_loss = sum(losses) / len(losses)
+            if self.one_batch_overfit:
+                break
 
-        self.logger.log_metric(
-            metric_name='train/average_mse_loss',
-            metric_value=average_loss,
-        )
-
-        if self.verbose:
-            print(epoch_idx, average_loss)
+        for metric_name, values in metrics.items():
+            mean_value = sum(values) / len(values)
+            self.logger.log_metric(
+                metric_name=f'train/{metric_name}',
+                metric_value=mean_value,
+            )
 
         model.training_epoch_end(epoch_idx=epoch_idx)
 
@@ -116,27 +124,29 @@ class Trainer:
             epoch_idx: int,
         ) -> None:
         model.eval()
-        losses = list()
+        metrics = defaultdict(list)
 
         for batch_idx, batch in enumerate(tqdm.tqdm(val_dataloader)):
             info = model.validation_step(
                 batch=batch,
                 batch_idx=batch_idx,
             )
+
+            for metric_name, value in info.items():
+                if type(value) is Tensor:
+                    metrics[metric_name].append(value.item())
+                else:
+                    metrics[metric_name].append(value)
+
             loss = info['loss']
-            outputs = info['outputs']
-            losses.append(loss.item())
             model.validation_step_end(batch_idx=batch_idx)
 
-        average_loss = sum(losses) / len(losses)
-
-        self.logger.log_metric(
-            metric_name='val/average_mse_loss',
-            metric_value=average_loss,
-        )
-
-        if self.verbose:
-            print(epoch_idx, average_loss)
+        for metric_name, values in metrics.items():
+            mean_value = sum(values) / len(values)
+            self.logger.log_metric(
+                metric_name=f'val/{metric_name}',
+                metric_value=mean_value,
+            )
 
         for scheduler in schedulers:
             scheduler.step()
@@ -159,6 +169,7 @@ class Trainer:
             epoch_idx=0,
         )
         for epoch_idx in range(1, self.max_epoch + 1):
+            print(f'Epoch {epoch_idx}')
             self.training_epoch(
                 model=model,
                 train_dataloader=train_dataloader,
@@ -173,7 +184,7 @@ class Trainer:
             )
             if epoch_idx % 5 == 0:
                 checkpoint_path = \
-                    Path.cwd() / 'models' / 'v{self.version}-e{epoch_idx}.pt'
+                    Path.cwd() / 'models' / f'v{self.version}-e{epoch_idx}.pt'
                 self.save_checkpoint(
                     model=model,
                     optimizers=optimizers,

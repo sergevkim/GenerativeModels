@@ -5,12 +5,7 @@ import torch
 import torch.nn as nn
 import torch.nn.functional as F
 from torch.nn import (
-    BatchNorm2d,
-    Conv2d,
-    ConvTranspose2d,
-    LeakyReLU,
     Module,
-    ModuleDict,
     MSELoss,
     Sequential,
 )
@@ -51,6 +46,7 @@ class SimpleAutoencoder(BaseModule):
         decoder_ordered_dict[f'block_{n_blocks - 1}'] = ConvBlock(
             in_channels=hidden_dim,
             out_channels=n_channels,
+            act=False,
         )
         self.decoder = Sequential(decoder_ordered_dict)
 
@@ -76,7 +72,6 @@ class SimpleAutoencoder(BaseModule):
 
         info = {
             'loss': loss,
-            'outputs': outputs,
         }
 
         return info

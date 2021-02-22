@@ -24,6 +24,7 @@ class ConvBlock(Module):
             transposed: bool = False,
             norm: bool = False,
             pool: bool = False,
+            act: bool = True,
         ):
         super().__init__()
         block_ordered_dict = OrderedDict()

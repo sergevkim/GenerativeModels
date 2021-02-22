@@ -46,33 +46,32 @@ class SimpleClassifier(BaseModule):
                 out_channels=hidden_dim,
                 norm=True,
                 pool=True,
+                act=False,
             ),
         )
         self.body = Sequential(body_ordered_dict)
 
-        neck_ordered_dict = OrderedDict(
+        self.neck = Sequential(
             avg_pool=AdaptiveAvgPool2d(output_size=(1, 1)),
             rearrange=Rearrange('b c h w -> b (c h w)'),
         )
-        self.neck = Sequential(neck_ordered_dict)
 
-        head_ordered_dict = OrderedDict(
-            linear_0=Linear(
+        self.head = Sequential(
+            Linear(
                 in_features=hidden_dim,
                 out_features=hidden_dim,
             ),
-            act_0=ReLU(),
-            linear_1=Linear(
+            ReLU(),
+            Linear(
                 in_features=hidden_dim,
                 out_features=hidden_dim,
             ),
-            act_1=ReLU(),
-            linear_2=Linear(
+            ReLU(),
+            Linear(
                 in_features=hidden_dim,
                 out_features=n_classes,
             ),
         )
-        self.head = Sequential(head_ordered_dict)
 
         self.criterion = NLLLoss()
         self.device = device
@@ -96,13 +95,27 @@ class SimpleClassifier(BaseModule):
 
         info = {
             'loss': loss,
-            'outputs': outputs,
         }
 
         return info
 
     def validation_step(self, batch, batch_idx):
-        return self.training_step(batch, batch_idx, 0)
+        x, y = batch
+        x = x.to(self.device)
+        y = y.to(self.device)
+
+        outputs = self.forward(x)
+        y_hat = F.log_softmax(outputs, dim=1)
+        _, predicts = torch.max(y_hat, dim=1)
+        loss = self.criterion(y_hat, y)
+        accuracy = (predicts == y).float().mean()
+
+        info = {
+            'accuracy': accuracy,
+            'loss': loss,
+        }
+
+        return info
 
     def configure_optimizers(self):
         optimizer = Adam(
