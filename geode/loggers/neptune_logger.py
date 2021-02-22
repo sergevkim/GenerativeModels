@@ -23,6 +23,24 @@ class NeptuneLogger:
             params=params,
         )
 
+    def log_image(
+            self,
+            image_name: str,
+            image,
+            step: Optional[int] = None,
+        ) -> None:
+        if step is None:
+            neptune.log_image(
+                log_name=image_name,
+                x=image,
+            )
+        else:
+            neptune.log_image(
+                log_name=image_name,
+                x=step,
+                y=image,
+            )
+
     def log_metrics(
             self,
             metrics: Dict[str, Union[Tensor, float]],

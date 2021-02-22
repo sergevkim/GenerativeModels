@@ -27,7 +27,7 @@ class SimpleAutoencoder(BaseModule):
             n_channels: int = 1,
             n_blocks: int = 3,
             device: torch.device = torch.device('cpu'),
-            learning_rate: float = 3e-4,
+            learning_rate: float = 3e-3,
         ):
         super().__init__()
         encoder_ordered_dict = OrderedDict()
@@ -68,13 +68,18 @@ class SimpleAutoencoder(BaseModule):
         images, _ = batch
         images = images.to(self.device)
 
-        predicts = self.forward(images)
+        outputs = self.forward(images)
         loss = self.criterion(
             images,
-            predicts,
+            outputs,
         )
 
-        return loss
+        info = {
+            'loss': loss,
+            'outputs': outputs,
+        }
+
+        return info
 
     def validation_step(self, batch, batch_idx):
         return self.training_step(batch, batch_idx, 0)

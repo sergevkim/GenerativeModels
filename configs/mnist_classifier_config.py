@@ -10,7 +10,7 @@ class CommonArguments:
         'cuda:0' if torch.cuda.is_available() else 'cpu'
     )
     neptune_api_token: str = open('./configs/neptune_api_token.txt').readline()[:-1]
-    neptune_experiment_name: str = 'autoencoder-start'
+    neptune_experiment_name: str = 'mnist-classifier-start'
     neptune_project_name: str = 'sergevkim/geode'
     seed: int = 9
     verbose: bool = True
@@ -19,17 +19,17 @@ class CommonArguments:
 
 @dataclass
 class DataArguments:
-    batch_size: int = 64
+    batch_size: int = 2
     data_path: Path = Path('./data')
     learning_rate: float = 3e-4
-    num_workers: int = 8
+    num_workers: int = 4
     val_ratio: float = 0.1
 
 
 @dataclass
 class TrainArguments:
     max_epoch: int = 10
-    one_batch_overfit: bool = False
+    one_batch_overfit: bool = True
     scheduler_gamma: float = 0.5
     scheduler_step_size: int = 10
 
@@ -37,9 +37,6 @@ class TrainArguments:
 @dataclass
 class SpecificArguments:
     hidden_dim: int = 100
-    n_blocks: int = 3
-    specific: bool = True
-
-
-print(CommonArguments.device)
+    n_channels: int = 1
+    n_classes: int = 10
 

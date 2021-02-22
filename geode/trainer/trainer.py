@@ -77,11 +77,13 @@ class Trainer:
 
         for batch_idx, batch in enumerate(tqdm.tqdm(train_dataloader)):
             for optimizer_idx, optimizer in enumerate(optimizers):
-                loss = model.training_step(
+                info = model.training_step(
                     batch=batch,
                     batch_idx=batch_idx,
                     optimizer_idx=optimizer_idx,
                 )
+                loss = info['loss']
+                outputs = info['outputs']
                 losses.append(loss.item())
                 loss.backward()
                 utils.clip_grad_norm_(
@@ -96,7 +98,7 @@ class Trainer:
         average_loss = sum(losses) / len(losses)
 
         self.logger.log_metric(
-            metric_name='average_mse_loss',
+            metric_name='train/average_mse_loss',
             metric_value=average_loss,
         )
 
@@ -117,17 +119,19 @@ class Trainer:
         losses = list()
 
         for batch_idx, batch in enumerate(tqdm.tqdm(val_dataloader)):
-            loss = model.validation_step(
+            info = model.validation_step(
                 batch=batch,
                 batch_idx=batch_idx,
             )
+            loss = info['loss']
+            outputs = info['outputs']
             losses.append(loss.item())
             model.validation_step_end(batch_idx=batch_idx)
 
         average_loss = sum(losses) / len(losses)
 
         self.logger.log_metric(
-            metric_name='average_mse_loss',
+            metric_name='val/average_mse_loss',
             metric_value=average_loss,
         )
 

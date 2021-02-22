@@ -6,9 +6,9 @@ import torch.nn.functional as F
 from einops.layers.torch import Rearrange
 from torch.nn import (
     AdaptiveAvgPool2d,
-    CrossEntropyLoss,
     Linear,
     Module,
+    NLLLoss,
     ReLU,
     Sequential,
 )
@@ -50,8 +50,11 @@ class SimpleClassifier(BaseModule):
         )
         self.body = Sequential(body_ordered_dict)
 
-        #self.neck = Rearrange('b c h w -> b (c h w)')
-        self.neck = AdaptiveAvgPool2d(output_size=(1, 1))
+        neck_ordered_dict = OrderedDict(
+            avg_pool=AdaptiveAvgPool2d(output_size=(1, 1)),
+            rearrange=Rearrange('b c h w -> b (c h w)'),
+        )
+        self.neck = Sequential(neck_ordered_dict)
 
         head_ordered_dict = OrderedDict(
             linear_0=Linear(
@@ -71,7 +74,7 @@ class SimpleClassifier(BaseModule):
         )
         self.head = Sequential(head_ordered_dict)
 
-        self.criterion = CrossEntropyLoss()
+        self.criterion = NLLLoss()
         self.device = device
         self.learning_rate = learning_rate
 
@@ -82,20 +85,24 @@ class SimpleClassifier(BaseModule):
 
         return x
 
-    def training_step(self, batch, batch_idx):
+    def training_step(self, batch, batch_idx, optimizer_idx):
         x, y = batch
-        x.to(self.device)
-        y.to(self.device)
+        x = x.to(self.device)
+        y = y.to(self.device)
 
-        y_hat = self.forward(x)
+        outputs = self.forward(x)
+        y_hat = F.log_softmax(outputs, dim=1)
         loss = self.criterion(y_hat, y)
 
-        return loss
+        info = {
+            'loss': loss,
+            'outputs': outputs,
+        }
+
+        return info
 
     def validation_step(self, batch, batch_idx):
-        loss = self.training_step(batch, batch_idx)
-
-        return loss
+        return self.training_step(batch, batch_idx, 0)
 
     def configure_optimizers(self):
         optimizer = Adam(

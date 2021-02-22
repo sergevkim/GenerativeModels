@@ -32,7 +32,7 @@ class ConvBlock(Module):
             out_channels=out_channels,
             kernel_size=kernel_size,
             padding=kernel_size//2,
-        ) if transposed else Conv2d(
+        ) if transposed else ConvTranspose2d( #TODO
             in_channels=in_channels,
             out_channels=out_channels,
             kernel_size=kernel_size,
