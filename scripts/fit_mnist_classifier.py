@@ -42,6 +42,8 @@ def main(args):
     trainer = Trainer(
         logger=logger,
         max_epoch=args.max_epoch,
+        one_batch_overfit=args.one_batch_overfit,
+        save_period=args.save_period,
         verbose=args.verbose,
         version=args.version,
     )

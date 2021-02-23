@@ -46,14 +46,20 @@ class SimpleClassifier(BaseModule):
                 out_channels=hidden_dim,
                 norm=True,
                 pool=True,
+            ),
+            block_3=ConvBlock(
+                in_channels=hidden_dim,
+                out_channels=hidden_dim,
+                norm=True,
+                pool=True,
                 act=False,
             ),
         )
         self.body = Sequential(body_ordered_dict)
 
         self.neck = Sequential(
-            avg_pool=AdaptiveAvgPool2d(output_size=(1, 1)),
-            rearrange=Rearrange('b c h w -> b (c h w)'),
+            AdaptiveAvgPool2d(output_size=(1, 1)),
+            Rearrange('b c h w -> b (c h w)'),
         )
 
         self.head = Sequential(
@@ -91,9 +97,12 @@ class SimpleClassifier(BaseModule):
 
         outputs = self.forward(x)
         y_hat = F.log_softmax(outputs, dim=1)
+        _, predicts = torch.max(y_hat, dim=1)
         loss = self.criterion(y_hat, y)
+        accuracy = (predicts == y).float().mean()
 
         info = {
+            'accuracy': accuracy,
             'loss': loss,
         }
 

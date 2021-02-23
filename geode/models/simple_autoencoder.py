@@ -30,11 +30,16 @@ class SimpleAutoencoder(BaseModule):
             in_channels=n_channels,
             out_channels=hidden_dim,
         )
-        for i in range(1, n_blocks):
+        for i in range(1, n_blocks - 1):
             encoder_ordered_dict[f'block_{i}'] = ConvBlock(
                 in_channels=hidden_dim,
                 out_channels=hidden_dim,
             )
+        encoder_ordered_dict[f'block_{n_blocks - 1}'] = ConvBlock(
+            in_channels=hidden_dim,
+            out_channels=hidden_dim,
+            act=False,
+        )
         self.encoder = Sequential(encoder_ordered_dict)
 
         decoder_ordered_dict = OrderedDict()
@@ -49,7 +54,7 @@ class SimpleAutoencoder(BaseModule):
             act=False,
         )
         self.decoder = Sequential(decoder_ordered_dict)
-
+        '''
         self.encoder = Sequential(
             nn.Conv2d(1, 10, 3, padding=1),
             nn.ReLU(),
@@ -75,7 +80,7 @@ class SimpleAutoencoder(BaseModule):
             ConvBlock(15, 10),
             ConvBlock(10, 1, act=False),
         )
-
+        '''
         self.criterion = MSELoss()
         self.device = device
         self.learning_rate = learning_rate

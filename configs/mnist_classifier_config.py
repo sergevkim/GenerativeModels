@@ -14,12 +14,12 @@ class CommonArguments:
     neptune_project_name: str = 'sergevkim/geode'
     seed: int = 9
     verbose: bool = True
-    version: str = '1.0.0'
+    version: str = 'mcl1.0.1'
 
 
 @dataclass
 class DataArguments:
-    batch_size: int = 2
+    batch_size: int = 128
     data_path: Path = Path('./data')
     learning_rate: float = 3e-4
     num_workers: int = 4
@@ -29,7 +29,8 @@ class DataArguments:
 @dataclass
 class TrainArguments:
     max_epoch: int = 10
-    one_batch_overfit: bool = True
+    one_batch_overfit: int = 1
+    save_period: int = 20
     scheduler_gamma: float = 0.5
     scheduler_step_size: int = 10
 

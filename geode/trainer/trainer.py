@@ -18,15 +18,17 @@ from geode.models import BaseModule
 class Trainer:
     def __init__(
             self,
-            logger,
-            max_epoch: int,
+            logger = None,
+            max_epoch: int = 1,
             one_batch_overfit: bool = False,
+            save_period: int = 20,
             verbose: bool = False,
             version: str = 'v0',
         ):
         self.logger = logger
         self.max_epoch = max_epoch
         self.one_batch_overfit = one_batch_overfit
+        self.save_period = save_period
         self.verbose = verbose
         self.version = version
 
@@ -104,15 +106,16 @@ class Trainer:
             model.training_step_end(batch_idx=batch_idx)
 
             if self.one_batch_overfit:
-                print(batch[1])
+                #print(batch[1])
                 break
 
         for metric_name, values in metrics.items():
             mean_value = sum(values) / len(values)
-            self.logger.log_metric(
-                metric_name=f'train/{metric_name}',
-                metric_value=mean_value,
-            )
+            if self.logger is not None:
+                self.logger.log_metric(
+                    metric_name=f'train/{metric_name}',
+                    metric_value=mean_value,
+                )
             if self.verbose:
                 print(f'{metric_name}: {mean_value}')
 
@@ -146,10 +149,11 @@ class Trainer:
 
         for metric_name, values in metrics.items():
             mean_value = sum(values) / len(values)
-            self.logger.log_metric(
-                metric_name=f'val/{metric_name}',
-                metric_value=mean_value,
-            )
+            if self.logger is not None:
+                self.logger.log_metric(
+                    metric_name=f'val/{metric_name}',
+                    metric_value=mean_value,
+                )
             if self.verbose:
                 print(f'{metric_name}: {mean_value}')
 
@@ -187,7 +191,7 @@ class Trainer:
                 schedulers=schedulers,
                 epoch_idx=epoch_idx,
             )
-            if epoch_idx % 5 == 0:
+            if epoch_idx % self.save_period == 0:
                 checkpoint_path = \
                     Path.cwd() / 'models' / f'{self.version}-e{epoch_idx}.pt'
                 self.save_checkpoint(
