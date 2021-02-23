@@ -39,7 +39,6 @@ class TrainArguments:
 class SpecificArguments:
     hidden_dim: int = 100
     n_blocks: int = 2
-    specific: bool = True
 
 
 print(CommonArguments.device)

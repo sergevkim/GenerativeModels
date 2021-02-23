@@ -7,7 +7,7 @@ from geode.models import SimpleAutoencoder, SimpleClassifier
 from geode.trainer import Trainer
 from geode.utils.randomer import Randomer
 
-from configs.omniglot_classifier_config import (
+from configs.latent_omniglot_classifier_config import (
     CommonArguments,
     DataArguments,
     TrainArguments,
@@ -20,7 +20,7 @@ def main(args):
 
     model = SimpleClassifier(
         n_channels=args.n_channels,
-        n_classes=args.n_classes, #TODO in config
+        n_classes=args.n_classes,
         hidden_dim=args.hidden_dim,
         device=args.device,
         learning_rate=args.learning_rate,

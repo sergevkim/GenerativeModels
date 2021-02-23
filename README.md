@@ -3,6 +3,8 @@
 1. install module:
     * `./scripts/install_module.sh`
 2. download data:
+    * `python scripts/downoad_data.py`
+    OR
     * `python geode/datamodules/omniglot_datamodule.py`
     * `python geode/datamodules/mnist_datamodule.py`
 3. fit omniglot autoencoder:

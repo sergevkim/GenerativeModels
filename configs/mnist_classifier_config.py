@@ -22,7 +22,7 @@ class DataArguments:
     batch_size: int = 128
     data_path: Path = Path('./data')
     learning_rate: float = 3e-4
-    num_workers: int = 4
+    num_workers: int = 8
     val_ratio: float = 0.1
 
 
@@ -40,4 +40,7 @@ class SpecificArguments:
     hidden_dim: int = 100
     n_channels: int = 1
     n_classes: int = 10
+
+
+print(CommonArguments.device)
 

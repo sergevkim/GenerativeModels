@@ -14,7 +14,7 @@ class CommonArguments:
     neptune_project_name: str = 'sergevkim/geode'
     seed: int = 9
     verbose: bool = True
-    version: str = 'ae1.1.0'
+    version: str = 'omcl1.1.0'
 
 
 @dataclass
@@ -38,8 +38,8 @@ class TrainArguments:
 @dataclass
 class SpecificArguments:
     hidden_dim: int = 100
-    n_blocks: int = 2
-    specific: bool = True
+    n_channels: int = 1
+    n_classes: int = 1623
 
 
 print(CommonArguments.device)

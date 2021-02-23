@@ -20,7 +20,7 @@ def main(args):
 
     model = SimpleClassifier(
         n_channels=args.n_channels,
-        n_classes=args.n_classes, #TODO in config
+        n_classes=args.n_classes,
         hidden_dim=args.hidden_dim,
         device=args.device,
         learning_rate=args.learning_rate,
