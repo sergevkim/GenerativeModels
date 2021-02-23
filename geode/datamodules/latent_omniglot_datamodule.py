@@ -92,7 +92,7 @@ class OmniglotDataset(Dataset):
         return image, character_class
 
 
-class OmniglotDataModule(BaseDataModule):
+class LatentOmniglotDataModule(BaseDataModule):
     def __init__(
             self,
             data_path,
@@ -131,7 +131,7 @@ class OmniglotDataModule(BaseDataModule):
 
 
 if __name__ == '__main__':
-    dm = OmniglotDataModule(
+    dm = LatentOmniglotDataModule(
         data_path='./data',
         batch_size=64,
         num_workers=4,
