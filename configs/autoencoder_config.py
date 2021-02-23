@@ -14,7 +14,7 @@ class CommonArguments:
     neptune_project_name: str = 'sergevkim/geode'
     seed: int = 9
     verbose: bool = True
-    version: str = '1.0.0'
+    version: str = 'ae1.0.1'
 
 
 @dataclass

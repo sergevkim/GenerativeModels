@@ -50,6 +50,32 @@ class SimpleAutoencoder(BaseModule):
         )
         self.decoder = Sequential(decoder_ordered_dict)
 
+        self.encoder = Sequential(
+            nn.Conv2d(1, 10, 3, padding=1),
+            nn.ReLU(),
+            nn.Conv2d(10, 15, 3, padding=1),
+            nn.ReLU(),
+            nn.Conv2d(15, 30, 3, padding=1),
+        )
+        self.decoder = Sequential(
+            nn.Conv2d(30, 15, 3, padding=1),
+            nn.ReLU(),
+            nn.Conv2d(15, 10, 3, padding=1),
+            nn.ReLU(),
+            nn.Conv2d(10, 1, 3, padding=1),
+        )
+
+        self.encoder = Sequential(
+            ConvBlock(1, 10),
+            ConvBlock(10, 15),
+            ConvBlock(15, 30, act=False),
+        )
+        self.decoder = Sequential(
+            ConvBlock(30, 15),
+            ConvBlock(15, 10),
+            ConvBlock(10, 1, act=False),
+        )
+
         self.criterion = MSELoss()
         self.device = device
         self.learning_rate = learning_rate

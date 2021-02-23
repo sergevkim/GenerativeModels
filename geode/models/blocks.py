@@ -33,7 +33,7 @@ class ConvBlock(Module):
             out_channels=out_channels,
             kernel_size=kernel_size,
             padding=kernel_size//2,
-        ) if transposed else ConvTranspose2d( #TODO
+        ) if not transposed else ConvTranspose2d(
             in_channels=in_channels,
             out_channels=out_channels,
             kernel_size=kernel_size,
@@ -48,7 +48,8 @@ class ConvBlock(Module):
             block_ordered_dict['pool'] = MaxPool2d(
                 kernel_size=2,
             )
-        block_ordered_dict['act'] = ReLU()
+        if act:
+            block_ordered_dict['act'] = ReLU()
         self.block = Sequential(block_ordered_dict)
 
     def forward(self, x):
@@ -56,3 +57,7 @@ class ConvBlock(Module):
 
         return x
 
+
+if __name__ == '__main__':
+    b = ConvBlock(5, 10)
+    print(b)

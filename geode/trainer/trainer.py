@@ -104,6 +104,7 @@ class Trainer:
             model.training_step_end(batch_idx=batch_idx)
 
             if self.one_batch_overfit:
+                print(batch[1])
                 break
 
         for metric_name, values in metrics.items():
@@ -112,6 +113,8 @@ class Trainer:
                 metric_name=f'train/{metric_name}',
                 metric_value=mean_value,
             )
+            if self.verbose:
+                print(f'{metric_name}: {mean_value}')
 
         model.training_epoch_end(epoch_idx=epoch_idx)
 
@@ -147,6 +150,8 @@ class Trainer:
                 metric_name=f'val/{metric_name}',
                 metric_value=mean_value,
             )
+            if self.verbose:
+                print(f'{metric_name}: {mean_value}')
 
         for scheduler in schedulers:
             scheduler.step()
@@ -184,7 +189,7 @@ class Trainer:
             )
             if epoch_idx % 5 == 0:
                 checkpoint_path = \
-                    Path.cwd() / 'models' / f'v{self.version}-e{epoch_idx}.pt'
+                    Path.cwd() / 'models' / f'{self.version}-e{epoch_idx}.pt'
                 self.save_checkpoint(
                     model=model,
                     optimizers=optimizers,
