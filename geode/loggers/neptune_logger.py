@@ -1,11 +1,12 @@
-#https://github.com/PyTorchLightning/pytorch-lightning/blob/master/pytorch_lightning/loggers/neptune.py
 from typing import Any, Dict, Optional, Union
 
 import neptune
 from torch import Tensor
 
+from geode.loggers.base_logger import BaseLogger
 
-class NeptuneLogger:
+
+class NeptuneLogger(BaseLogger):
     def __init__(
             self,
             api_token: str,
@@ -39,18 +40,6 @@ class NeptuneLogger:
                 log_name=image_name,
                 x=step,
                 y=image,
-            )
-
-    def log_metrics(
-            self,
-            metrics: Dict[str, Union[Tensor, float]],
-            step: Optional[int] = None,
-        ) -> None:
-        for metric_name, metric_value in metrics.items():
-            self.log_metric(
-                metric_name=metric_name,
-                metric_value=metric_value,
-                step=step,
             )
 
     def log_metric(

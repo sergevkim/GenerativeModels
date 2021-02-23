@@ -12,13 +12,14 @@ from torch.optim.optimizer import Optimizer
 from torch.utils.data import DataLoader
 
 from geode.datamodules import BaseDataModule
+from geode.loggers import BaseLogger
 from geode.models import BaseModule
 
 
 class Trainer:
     def __init__(
             self,
-            logger = None,
+            logger: Optional[BaseLogger] = None,
             max_epoch: int = 1,
             one_batch_overfit: bool = False,
             save_period: int = 20,
@@ -106,7 +107,6 @@ class Trainer:
             model.training_step_end(batch_idx=batch_idx)
 
             if self.one_batch_overfit:
-                #print(batch[1])
                 break
 
         for metric_name, values in metrics.items():

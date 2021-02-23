@@ -7,13 +7,13 @@
     * `python geode/datamodules/mnist_datamodule.py`
 3. fit omniglot autoencoder:
     * `python scripts/fit_omniglot_autoencoder.py`
-    * `python scripts/prepare_latent_omniglot.py`
+    * `python scripts/prepare_latent_omniglot.py` [WIP]
 4. fit mnist classifier:
     * `python scripts/fit_mnist_classifier.py`
 5. fit omniglot classifier:
-    * `python scripts/fit_omniglot_classifier.py`
+    * `python scripts/fit_omniglot_classifier.py` [WIP]
 6. fit latent omniglot classifier:
-    * `python scripts/fit_latent_omniglot_classifier.py`
+    * `python scripts/fit_latent_omniglot_classifier.py` [WIP]
 
 One Paragraph of project description goes here
 
