@@ -2,15 +2,18 @@
 
 1. install module:
     * `./scripts/install_module.sh`
-2. download data:
+2. download data TODO put in scripts:
     * `python geode/datamodules/omniglot_datamodule.py`
     * `python geode/datamodules/mnist_datamodule.py`
-3. fit autoencoder:
-    * `python scripts/fit_autoencoder.py`
+3. fit omniglot autoencoder:
+    * `python scripts/fit_omniglot_autoencoder.py`
+    * `python scripts/prepare_latent_omniglot.py`
 4. fit mnist classifier:
     * `python scripts/fit_mnist_classifier.py`
 5. fit omniglot classifier:
     * `python scripts/fit_omniglot_classifier.py`
+6. fit latent omniglot classifier:
+    * `python scripts/fit_latent_omniglot_classifier.py`
 
 One Paragraph of project description goes here
 

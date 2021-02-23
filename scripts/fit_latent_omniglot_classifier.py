@@ -1,13 +1,13 @@
 from argparse import ArgumentParser
 from pathlib import Path
 
-from geode.datamodules import OmniglotDataModule
+from geode.datamodules import LatentOmniglotDataModule
 from geode.loggers import NeptuneLogger
-from geode.models import SimpleAutoencoder
+from geode.models import SimpleAutoencoder, SimpleClassifier
 from geode.trainer import Trainer
 from geode.utils.randomer import Randomer
 
-from configs.autoencoder_config import (
+from configs.omniglot_classifier_config import (
     CommonArguments,
     DataArguments,
     TrainArguments,
@@ -18,9 +18,10 @@ from configs.autoencoder_config import (
 def main(args):
     Randomer.set_seed(seed=args.seed)
 
-    model = SimpleAutoencoder(
+    model = SimpleClassifier(
+        n_channels=args.n_channels,
+        n_classes=args.n_classes, #TODO in config
         hidden_dim=args.hidden_dim,
-        n_blocks=args.n_blocks,
         device=args.device,
         learning_rate=args.learning_rate,
     ).to(args.device)
