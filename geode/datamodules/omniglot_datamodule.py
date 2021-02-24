@@ -4,10 +4,13 @@
 
 import os
 
+import sklearn.model_selection as model_selection
 import torch
+import tqdm
 from torch.utils.data import (
     ConcatDataset,
     Dataset,
+    Subset,
 )
 from torchvision.datasets.omniglot import Omniglot
 from torchvision.transforms import (
@@ -119,7 +122,7 @@ class OmniglotDataModule(BaseDataModule):
             transform=data_transforms,
             download=download,
         )
-
+        '''
         full_size = len(full_dataset)
         val_size = int(val_ratio * full_size)
         train_size = full_size - val_size
@@ -128,6 +131,20 @@ class OmniglotDataModule(BaseDataModule):
             dataset=full_dataset,
             lengths=[train_size, val_size],
         )
+        '''
+        labels = []
+        for _, label in tqdm.tqdm(full_dataset):
+            labels.append(label)
+
+        indices_train, indices_test, _, _ = model_selection.train_test_split(
+            list(range(len(labels))),
+            labels,
+            test_size=val_ratio,
+            stratify=labels,
+        )
+
+        self.train_dataset = Subset(full_dataset, indices=indices_train)
+        self.test_dataset = Subset(full_dataset, indices=indices_test)
 
 
 if __name__ == '__main__':
