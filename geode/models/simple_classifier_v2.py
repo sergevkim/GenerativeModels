@@ -45,7 +45,7 @@ class SimpleClassifierV2(BaseModule):
             )
 
         body_ordered_dict[f'block_{n_blocks - 1}'] = ConvBlock(
-            in_channels=n_channels,
+            in_channels=hidden_dim,
             out_channels=hidden_dim,
             norm=True,
             pool=True,
