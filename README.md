@@ -1,5 +1,7 @@
 # GEnerative mODEls
 
+[![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/drive/1-sG4GfIwWLuQjJMxmySS029pfd3rY7cY)
+
 1. install module:
     * `./scripts/install_module.sh`
 2. download data:

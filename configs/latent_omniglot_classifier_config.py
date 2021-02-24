@@ -37,9 +37,9 @@ class TrainArguments:
 
 @dataclass
 class SpecificArguments:
-    hidden_dim: int = 100
     n_channels: int = 1
     n_classes: int = 1623
+    hidden_dim: int = 100
 
 
 print(CommonArguments.device)

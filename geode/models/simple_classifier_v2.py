@@ -18,9 +18,10 @@ from geode.models.base_module import BaseModule
 from geode.models.blocks import ConvBlock
 
 
-class SimpleClassifier(BaseModule):
+class SimpleClassifierV2(BaseModule):
     def __init__(
             self,
+            n_blocks: int = 6,
             n_channels: int = 1,
             n_classes: int = 10,
             hidden_dim: int = 100,
@@ -28,33 +29,28 @@ class SimpleClassifier(BaseModule):
             learning_rate: float = 3e-4,
         ):
         super().__init__()
-        body_ordered_dict = OrderedDict(
-            block_0=ConvBlock(
-                in_channels=n_channels,
-                out_channels=hidden_dim,
-                norm=True,
-                pool=True,
-            ),
-            block_1=ConvBlock(
-                in_channels=hidden_dim,
-                out_channels=hidden_dim,
-                norm=True,
-                pool=True,
-            ),
-            block_2=ConvBlock(
-                in_channels=hidden_dim,
-                out_channels=hidden_dim,
-                norm=True,
-                pool=True,
-            ),
-            block_3=ConvBlock(
-                in_channels=hidden_dim,
-                out_channels=hidden_dim,
-                norm=True,
-                pool=True,
-                act=False,
-            ),
+        bode_ordered_dict['block_0'] = ConvBlock(
+            in_channels=n_channels,
+            out_channels=hidden_dim,
+            norm=True,
+            pool=True,
         )
+
+        for i in range(1, n_blocks - 1):
+            body_ordered_dict[f'block_{i}'] = ConvBlock(
+                in_channels=hidden_dim,
+                out_channels=hidden_dim,
+                norm=True,
+            )
+
+        bode_ordered_dict[f'block_{n_blocks - 1}'] = ConvBlock(
+            in_channels=n_channels,
+            out_channels=hidden_dim,
+            norm=True,
+            pool=True,
+            act=False,
+        )
+
         self.body = Sequential(body_ordered_dict)
 
         self.neck = Sequential(
@@ -65,16 +61,16 @@ class SimpleClassifier(BaseModule):
         self.head = Sequential(
             Linear(
                 in_features=hidden_dim,
-                out_features=hidden_dim,
+                out_features=hidden_dim * 2,
             ),
             ReLU(),
             Linear(
-                in_features=hidden_dim,
-                out_features=hidden_dim,
+                in_features=hidden_dim * 2,
+                out_features=n_classes * 2,
             ),
             ReLU(),
             Linear(
-                in_features=hidden_dim,
+                in_features=n_classes * 2,
                 out_features=n_classes,
             ),
         )
