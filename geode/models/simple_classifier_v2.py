@@ -29,7 +29,8 @@ class SimpleClassifierV2(BaseModule):
             learning_rate: float = 3e-4,
         ):
         super().__init__()
-        bode_ordered_dict['block_0'] = ConvBlock(
+        body_ordered_dict = OrderedDict()
+        body_ordered_dict['block_0'] = ConvBlock(
             in_channels=n_channels,
             out_channels=hidden_dim,
             norm=True,
@@ -43,7 +44,7 @@ class SimpleClassifierV2(BaseModule):
                 norm=True,
             )
 
-        bode_ordered_dict[f'block_{n_blocks - 1}'] = ConvBlock(
+        body_ordered_dict[f'block_{n_blocks - 1}'] = ConvBlock(
             in_channels=n_channels,
             out_channels=hidden_dim,
             norm=True,
@@ -137,5 +138,5 @@ class SimpleClassifierV2(BaseModule):
 
 
 if __name__ == '__main__':
-    model = SimpleClassifier()
+    model = SimpleClassifierV2()
     print(model)
