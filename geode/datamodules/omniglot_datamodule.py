@@ -144,7 +144,7 @@ class OmniglotDataModule(BaseDataModule):
         )
 
         self.train_dataset = Subset(full_dataset, indices=indices_train)
-        self.test_dataset = Subset(full_dataset, indices=indices_test)
+        self.val_dataset = Subset(full_dataset, indices=indices_test)
 
 
 if __name__ == '__main__':
