@@ -6,6 +6,7 @@ import torch.nn.functional as F
 from einops.layers.torch import Rearrange
 from torch.nn import (
     AdaptiveAvgPool2d,
+    Dropout,
     Linear,
     Module,
     NLLLoss,
@@ -55,23 +56,25 @@ class SimpleClassifierV2(BaseModule):
         self.body = Sequential(body_ordered_dict)
 
         self.neck = Sequential(
-            AdaptiveAvgPool2d(output_size=(1, 1)),
+            AdaptiveAvgPool2d(output_size=(2, 2)),
             Rearrange('b c h w -> b (c h w)'),
         )
 
         self.head = Sequential(
             Linear(
-                in_features=hidden_dim,
-                out_features=hidden_dim * 2,
+                in_features=hidden_dim * 4,
+                out_features=hidden_dim * 4,
             ),
             ReLU(),
+            Dropout(p=0.4),
             Linear(
-                in_features=hidden_dim * 2,
-                out_features=n_classes * 2,
+                in_features=hidden_dim * 4,
+                out_features=max(n_classes * 2, hidden_dim),
             ),
             ReLU(),
+            Dropout(p=0.2),
             Linear(
-                in_features=n_classes * 2,
+                in_features=max(n_classes * 2, hidden_dim),
                 out_features=n_classes,
             ),
         )
@@ -94,7 +97,7 @@ class SimpleClassifierV2(BaseModule):
 
         outputs = self.forward(x)
         y_hat = F.log_softmax(outputs, dim=1)
-        _, predicts = torch.max(y_hat, dim=1)
+        predicts = torch.argmax(y_hat, dim=1)
         loss = self.criterion(y_hat, y)
         accuracy = (predicts == y).float().mean()
 
@@ -112,7 +115,7 @@ class SimpleClassifierV2(BaseModule):
 
         outputs = self.forward(x)
         y_hat = F.log_softmax(outputs, dim=1)
-        _, predicts = torch.max(y_hat, dim=1)
+        predicts = torch.argmax(y_hat, dim=1)
         loss = self.criterion(y_hat, y)
         accuracy = (predicts == y).float().mean()
 

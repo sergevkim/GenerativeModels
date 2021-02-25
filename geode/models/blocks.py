@@ -42,7 +42,6 @@ class ConvBlock(Module):
         if norm:
             block_ordered_dict['norm'] = BatchNorm2d(
                 num_features=out_channels,
-                momentum=None, #?
             )
         if pool:
             block_ordered_dict['pool'] = MaxPool2d(

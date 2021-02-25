@@ -28,7 +28,7 @@ class DataArguments:
 
 @dataclass
 class TrainArguments:
-    max_epoch: int = 10
+    max_epoch: int = 500
     one_batch_overfit: int = 1
     save_period: int = 20
     scheduler_gamma: float = 0.5
@@ -40,7 +40,7 @@ class SpecificArguments:
     n_blocks: int = 5
     n_channels: int = 1
     n_classes: int = 1623
-    hidden_dim: int = 100
+    hidden_dim: int = 200
 
 
 print(CommonArguments.device)

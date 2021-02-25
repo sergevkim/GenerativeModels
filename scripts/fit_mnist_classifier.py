@@ -3,7 +3,7 @@ from pathlib import Path
 
 from geode.datamodules import MNISTDataModule
 from geode.loggers import NeptuneLogger
-from geode.models import SimpleClassifier
+from geode.models import SimpleClassifier, SimpleClassifierV2
 from geode.trainer import Trainer
 from geode.utils.randomer import Randomer
 
@@ -18,7 +18,8 @@ from configs.mnist_classifier_config import (
 def main(args):
     Randomer.set_seed(seed=args.seed)
 
-    model = SimpleClassifier(
+    model = SimpleClassifierV2(
+        n_blocks=args.n_blocks,
         n_channels=args.n_channels,
         n_classes=args.n_classes,
         hidden_dim=args.hidden_dim,
