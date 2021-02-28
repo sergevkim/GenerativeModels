@@ -1,3 +1,3 @@
-from .base_module import BaseModule
+from .base_model import BaseModel
 from .protostar_model import ProtostarModel
 

@@ -1,5 +1,3 @@
-import abc
-from abc import ABC
 from pathlib import Path
 
 import torch
@@ -7,7 +5,23 @@ from torch import Tensor
 from torch.utils.data import Dataset, DataLoader
 
 
-class BaseDataModule(ABC):
+class ProtostarDataset(Dataset):
+    def __init__(
+            self,
+        ):
+        pass
+
+    def __len__(self) -> int:
+        pass
+
+    def __getitem__(
+            self,
+            idx: int,
+        ):
+        pass
+
+
+class ProtostarDataModule:
     def __init__(
             self,
             data_path: Path,
@@ -24,14 +38,25 @@ class BaseDataModule(ABC):
         ):
         pass
 
-    @abc.abstractmethod
     def setup(
             self,
             val_ratio: float,
         ) -> None:
-        pass
+        data = self.prepare_data(
+            data_path=self.data_path,
+        )
+        full_dataset = ProtostarDataset(
+        )
 
-    @property
+        full_size = len(full_dataset)
+        val_size = int(val_ratio * full_size)
+        train_size = full_size - val_size
+
+        self.train_dataset, self.val_dataset = torch.utils.data.random_split(
+            dataset=full_dataset,
+            lengths=[train_size, val_size],
+        )
+
     def train_dataloader(self) -> DataLoader:
         train_dataloader = DataLoader(
             dataset=self.train_dataset,
@@ -41,7 +66,6 @@ class BaseDataModule(ABC):
 
         return train_dataloader
 
-    @property
     def val_dataloader(self) -> DataLoader:
         val_dataloader = DataLoader(
             dataset=self.val_dataset,

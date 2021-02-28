@@ -1,5 +1,5 @@
 #!/bin/sh
 
 pip install -e .
-rm -rf geode.egg-info
+rm -rf protostar.egg-info
 
