@@ -1,3 +1,5 @@
+import abc
+from abc import ABCMeta
 from typing import List, Tuple
 
 import torch
@@ -8,18 +10,23 @@ from torch.optim.lr_scheduler import _LRScheduler
 from torch.optim.optimizer import Optimizer
 
 
-class BaseModel(Module):
+class BaseModule(
+        Module,
+        metaclass=ABCMeta,
+    ):
     def __init__(
             self,
         ):
         super().__init__()
 
+    @abc.abstractmethod
     def forward(
             self,
             x: Tensor,
         ) -> Tensor:
         pass
 
+    @abc.abstractmethod
     def training_step(
             self,
             batch: Tensor,
@@ -39,6 +46,7 @@ class BaseModel(Module):
         ):
         pass
 
+    @abc.abstractmethod
     def validation_step(
             self,
             batch: Tensor,
@@ -58,6 +66,7 @@ class BaseModel(Module):
         ):
         pass
 
+    @abc.abstractmethod
     def configure_optimizers(
             self,
         ) -> Tuple[List[Optimizer], List[_LRScheduler]]:

@@ -1,12 +1,13 @@
 from argparse import ArgumentParser
 from pathlib import Path
 
-from protostar.datamodules import ProtostarDataModule
-from protostar.loggers import NeptuneLogger
-from protostar.models import ProtostarModel
-from protostar.trainer import Trainer
+from geode.datamodules import OmniglotDataModule
+from geode.loggers import NeptuneLogger
+from geode.models import SimpleClassifier, SimpleClassifierV2
+from geode.trainer import Trainer
+from geode.utils.randomer import Randomer
 
-from config import (
+from configs.omniglot_classifier_config import (
     CommonArguments,
     DataArguments,
     TrainArguments,
@@ -15,13 +16,18 @@ from config import (
 
 
 def main(args):
-    model = ProtostarModel(
-        learning_rate=args.learning_rate
-        scheduler_gamma=args.scheduler_gamma,
-        scheduler_step_size=args.scheduler_step_size,
-        verbose=args.verbose,
-    )
-    datamodule = ProtostarDataModule(
+    Randomer.set_seed(seed=args.seed)
+
+    model = SimpleClassifierV2(
+        n_blocks=args.n_blocks,
+        n_channels=args.n_channels,
+        n_classes=args.n_classes,
+        hidden_dim=args.hidden_dim,
+        device=args.device,
+        learning_rate=args.learning_rate,
+    ).to(args.device)
+
+    datamodule = OmniglotDataModule(
         data_path=args.data_path,
         batch_size=args.batch_size,
         num_workers=args.num_workers,
@@ -29,15 +35,19 @@ def main(args):
     datamodule.setup(val_ratio=args.val_ratio)
 
     logger = NeptuneLogger(
-        api_key=None,
-        project_name=None,
+        api_token=args.neptune_api_token,
+        project_name=args.neptune_project_name,
+        experiment_name=args.neptune_experiment_name,
     )
+
     trainer = Trainer(
         logger=logger,
+        max_epoch=args.max_epoch,
+        one_batch_overfit=args.one_batch_overfit,
+        save_period=args.save_period,
         verbose=args.verbose,
         version=args.version,
     )
-
     trainer.fit(
         model=model,
         datamodule=datamodule,

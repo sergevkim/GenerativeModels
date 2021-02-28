@@ -1,4 +1,23 @@
-# Project Title
+# GEnerative mODEls
+
+[![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/drive/1-sG4GfIwWLuQjJMxmySS029pfd3rY7cY)
+
+1. install module:
+    * `./scripts/install_module.sh`
+2. download data:
+    * `python scripts/downoad_data.py`
+    OR
+    * `python geode/datamodules/omniglot_datamodule.py`
+    * `python geode/datamodules/mnist_datamodule.py`
+3. fit omniglot autoencoder:
+    * `python scripts/fit_omniglot_autoencoder.py`
+    * `python scripts/prepare_latent_omniglot.py` [WIP]
+4. fit mnist classifier:
+    * `python scripts/fit_mnist_classifier.py`
+5. fit omniglot classifier:
+    * `python scripts/fit_omniglot_classifier.py` [WIP]
+6. fit latent omniglot classifier:
+    * `python scripts/fit_latent_omniglot_classifier.py` [WIP]
 
 One Paragraph of project description goes here
 
