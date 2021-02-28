@@ -31,6 +31,7 @@ class BaseModule(
             self,
             batch: Tensor,
             batch_idx: int,
+            optimizer_idx: int,
         ) -> Tensor:
         pass
 
