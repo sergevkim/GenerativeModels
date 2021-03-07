@@ -1,4 +1,5 @@
 from .base_datamodule import BaseDataModule
+from .celeba_datamodule import CelebADataModule
 from .latent_omniglot_datamodule import LatentOmniglotDataModule
 from .mnist_datamodule import MNISTDataModule
 from .omniglot_datamodule import OmniglotDataModule

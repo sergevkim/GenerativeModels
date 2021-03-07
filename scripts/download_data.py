@@ -1,4 +1,8 @@
-from geode.datamodules import MNISTDataModule, OmniglotDataModule
+from geode.datamodules import 
+    CelebADataModule,
+    MNISTDataModule,
+    OmniglotDataModule,
+)
 
 
 if __name__ == '__main__':
@@ -15,4 +19,11 @@ if __name__ == '__main__':
         num_workers=4,
     )
     mnist_datamodule.setup(download=True)
+
+    celeba_datamodule = CelebADataModule(
+        data_path='./data',
+        batch_size=64,
+        num_workers=4,
+    )
+    celeba_datamodule.setup(download=True)
 
