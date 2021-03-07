@@ -1,4 +1,4 @@
-from geode.datamodules import 
+from geode.datamodules import (
     CelebADataModule,
     MNISTDataModule,
     OmniglotDataModule,
