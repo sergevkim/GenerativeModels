@@ -7,6 +7,7 @@ from torch.nn import (
     BatchNorm2d,
     Conv2d,
     ConvTranspose2d,
+    InstanceNorm2d,
     MaxPool2d,
     Module,
     ModuleDict,
@@ -21,8 +22,12 @@ class ConvBlock(Module):
             in_channels: int,
             out_channels: int,
             kernel_size: int = 3,
+            stride: int = 1,
+            padding: int = 1,
+            bias: bool = True,
             transposed: bool = False,
             norm: bool = False,
+            instance_norm: bool = False,
             pool: bool = False,
             act: bool = True,
         ):
@@ -32,27 +37,67 @@ class ConvBlock(Module):
             in_channels=in_channels,
             out_channels=out_channels,
             kernel_size=kernel_size,
-            padding=kernel_size//2,
+            stride=stride,
+            padding=padding,
+            bias=bias,
         ) if not transposed else ConvTranspose2d(
             in_channels=in_channels,
             out_channels=out_channels,
             kernel_size=kernel_size,
-            padding=kernel_size//2,
+            stride=stride,
+            padding=padding,
+            bias=bias,
         )
         if norm:
-            block_ordered_dict['norm'] = BatchNorm2d(
+            block_ordered_dict['norm'] = BatchNorm2d(num_features=out_channels)
+        if instance_norm:
+            block_ordered_dict['norm'] = InstanceNorm2d(
                 num_features=out_channels,
+                affine=True,
+                track_running_stats=True,
             )
         if pool:
-            block_ordered_dict['pool'] = MaxPool2d(
-                kernel_size=2,
-            )
+            block_ordered_dict['pool'] = MaxPool2d(kernel_size=2)
         if act:
             block_ordered_dict['act'] = ReLU()
-        self.block = Sequential(block_ordered_dict)
+        self.conv_block = Sequential(block_ordered_dict)
 
     def forward(self, x):
-        x = self.block(x)
+        x = self.conv_block(x)
+
+        return x
+
+
+class ResidualBlock(Module):
+    def __init__(
+            self,
+            in_channels: int,
+            out_channels: int,
+            kernel_size: int = 3,
+            stride: int = 1,
+            padding: int = 1,
+        ):
+        super().__init__()
+        self.residual_block = Sequential(
+            ConvBlock(
+                in_channels=in_channels,
+                out_channels=out_channels,
+                kernel_size=3,
+                bias=False,
+                instance_norm=True,
+            ),
+            ConvBlock(
+                in_channels=out_channels,
+                out_channels=out_channels,
+                kernel_size=3,
+                bias=False,
+                instance_norm=True,
+                act=False,
+            ),
+        )
+
+    def forward(self, x):
+        x = x + self.residual_block(x)
 
         return x
 

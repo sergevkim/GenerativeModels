@@ -49,11 +49,12 @@ class StarGAN(BaseModule):
         original_images = batch['images']
         original_labels = batch['original_labels']
         target_labels = batch['target_labels']
+        #TODO sampling target labels not in dataset.__getitem__ but here
         images = images.to(self.device)
         original_labels = original_labels.to(self.device)
         target_labels = target_labels.to(self.device)
 
-        if optimizer_idx == 0:
+        if optimizer_idx == 0:  #generator step
             generated_images = self.G.forward(
                 original_images,
                 target_labels,
@@ -90,7 +91,7 @@ class StarGAN(BaseModule):
                 'cls_loss': cls_loss,
                 'fid': fid,
             }
-        elif optimizer_idx == 1:
+        elif optimizer_idx == 1:  # discriminator step
             generated_images = self.G.forward(
                 original_images,
                 target_labels,
@@ -132,7 +133,7 @@ class StarGAN(BaseModule):
             )
 
             info = {
-                'loss': loss
+                'loss': loss,
                 'adv_fake_loss': adv_fake_loss,
                 'adv_real_loss': adv_real_loss,
                 'cls_fake_loss': cls_fake_loss,
