@@ -15,7 +15,7 @@ from geode.datamodules.base_datamodule import BaseDataModule
 class CelebADataModule(BaseDataModule):
     def setup(
             self,
-            val_ratio,
+            val_ratio: float = 0.1,
             new_size: Tuple[int, int] = (256, 256),
             download: bool = False,
         ):
@@ -30,14 +30,15 @@ class CelebADataModule(BaseDataModule):
             transform=data_transforms,
             download=download,
         )
+        self.train_dataset = full_dataset
 
 
 if __name__ == '__main__':
     dm = CelebADataModule(
-        data_path='./data',
+        data_path='./data/celeba',
         batch_size=64,
         num_workers=4,
     )
-    dm.setup(download=True)
+    dm.setup()
     dl = dm.train_dataloader()
     print(len(dl))
