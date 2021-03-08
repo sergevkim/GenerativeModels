@@ -56,16 +56,15 @@ class StarGAN(BaseModule):
 
         if optimizer_idx == 0:  #generator step
             generated_images = self.G.forward(
-                original_images,
-                target_labels,
+                images=original_images,
+                labels=target_labels,
             )
             reconstructed_images = self.G.forward(
-                generated_images,
-                original_labels,
+                images=generated_images,
+                labels=original_labels,
             )
             predicts = self.D.forward(
-                generated_images,
-                target_labels,
+                images=generated_images,
             )
             src_predicts = predicts['src']
             cls_predicts = predicts['cls']
@@ -93,18 +92,16 @@ class StarGAN(BaseModule):
             }
         elif optimizer_idx == 1:  # discriminator step
             generated_images = self.G.forward(
-                original_images,
-                target_labels,
+                images=original_images,
+                labels=target_labels,
             )
             fake_predicts = self.D.forward(
-                generated_images,
-                target_labels,
+                images=generated_images,
             )
             src_fake_predicts = fake_predicts['src']
             cls_fake_predicts = fake_predicts['cls']
             real_predicts = self.D.forward(
-                original_images,
-                original_labels,
+                images=original_images,
             )
             src_real_predicts = real_predicts['src']
             cls_real_predicts = real_predicts['cls']

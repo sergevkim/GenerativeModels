@@ -1,5 +1,6 @@
 from collections import OrderedDict
 
+import einops
 import torch
 from torch.nn import (
     Conv2d,
@@ -96,7 +97,16 @@ class StarGenerator(Module):
             images,
             labels,
         ):
-        x = cat(images, labels) #TODO
+        labels = einops.repeat(
+            tensor=labels,
+            pattern='b 1 -> b 1 h w',
+            h=image.shape[2],
+            w=image.shape[3],
+        )
+        x = torch.cat(
+            [images, labels],
+            dim=1,
+        )
         x = self.downsample(x)
         x = self.bottleneck(x)
         x = self.upsample(x)
