@@ -53,9 +53,9 @@ class StarCritic(Module):
 
     def forward(
             self,
-            x,
+            images,
         ):
-        h = self.body(x)
+        h = self.body(images)
         src_predict = self.head_src(h)
         cls_predict = self.head_cls(h)
 
