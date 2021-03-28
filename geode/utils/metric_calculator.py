@@ -78,7 +78,7 @@ class MetricCalculator:
         return mu_1, mu_2, sigma_1, sigma_2
 
     @classmethod
-    @torch.no_grad
+    @torch.no_grad()
     def calculate_fid(
             cls,
             model: Module,

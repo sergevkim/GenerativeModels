@@ -39,6 +39,6 @@ if __name__ == '__main__':
         batch_size=64,
         num_workers=4,
     )
-    dm.setup()
+    dm.setup(download=True)
     dl = dm.train_dataloader()
     print(len(dl))

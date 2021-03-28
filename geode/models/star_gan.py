@@ -82,7 +82,6 @@ class StarGAN(BaseModule):
                 target_labels,
             )
             loss = rec_loss + adv_loss + cls_loss #TODO coefs
-            fid = MetricCalculator.calculate_fid(..., ...)
             info = {
                 'loss': loss,
                 'rec_loss': rec_loss,
