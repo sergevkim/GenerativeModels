@@ -11,25 +11,20 @@ from torch.autograd import Variable, grad
 from torch.utils.data import DataLoader
 from torchvision import datasets, transforms, utils
 
-import wandb
-import torchvision
-
-from geode.glow import Glow
-from my_utils import set_seed, count_parameters, calc_z_shapes
-from my_calculate_fid import calculate_fid
-from inception import InceptionV3
+from geode.datamodules import CelebADataModule
+from geode.glow.glow_model import Glow
+from geode.loggers import NeptuneLogger
 
 
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
 parser = argparse.ArgumentParser(description="Glow trainer")
-parser.add_argument("--batch", default=64, type=int, help="batch size")
+parser.add_argument("--batch", default=4, type=int, help="batch size")
 parser.add_argument("--iter", default=200000, type=int, help="maximum iterations")
-parser.add_argument("--num_epochs", default=30, type=int, help="num epochs")
 parser.add_argument(
-    "--n_flow", default=16, type=int, help="number of flows in each block"
+    "--n_flow", default=32, type=int, help="number of flows in each block"
 )
-parser.add_argument("--n_block", default=3, type=int, help="number of blocks")
+parser.add_argument("--n_block", default=4, type=int, help="number of blocks")
 parser.add_argument(
     "--no_lu",
     action="store_true",
@@ -39,40 +34,26 @@ parser.add_argument(
     "--affine", action="store_true", help="use affine coupling instead of additive"
 )
 parser.add_argument("--n_bits", default=5, type=int, help="number of bits")
-parser.add_argument("--lr", default=2e-4, type=float, help="learning rate")
+parser.add_argument("--lr", default=1e-4, type=float, help="learning rate")
 parser.add_argument("--img_size", default=64, type=int, help="image size")
-parser.add_argument("--temp", default=0.5, type=float, help="temperature of sampling")
+parser.add_argument("--temp", default=0.7, type=float, help="temperature of sampling")
 parser.add_argument("--n_sample", default=20, type=int, help="number of samples")
+parser.add_argument("--n_epochs", default=10, type=int, help="number of epochs")
 
 
+def calc_z_shapes(n_channel, input_size, n_flow, n_block):
+    z_shapes = []
 
-def wandb_start(config, run_name):
-    wandb.init(project="dgm-ht4", config=config)
-    wandb.run.name = run_name
+    for i in range(n_block - 1):
+        input_size //= 2
+        n_channel *= 2
 
+        z_shapes.append((n_channel, input_size, input_size))
 
-def get_loaders(BS, image_size):
-    celeba_transforms = transforms.Compose([
-        transforms.CenterCrop((148, 148)),
-        transforms.Resize((image_size, image_size)),
-        transforms.ToTensor(),
-    ])
+    input_size //= 2
+    z_shapes.append((n_channel * 4, input_size, input_size))
 
-    my_dataset = torchvision.datasets.CelebA('./celeba/',
-                                           transform=celeba_transforms,
-                                           download=False)
-    all_size = len(my_dataset)
-    
-    val_size = 2000
-    train_size = all_size - val_size
-    train_set, val_set = torch.utils.data.random_split(my_dataset, [train_size, val_size])
-    
-    train_loader = DataLoader(train_set, batch_size=BS, shuffle=True,
-                              num_workers=2, pin_memory=True, drop_last=True)
-
-    val_loader = DataLoader(val_set, batch_size=1, shuffle=False)
-    fid_loader = DataLoader(val_set, batch_size=BS, shuffle=False, drop_last=True)
-    return train_loader, val_loader, fid_loader
+    return z_shapes
 
 
 def calc_loss(log_p, logdet, image_size, n_bins):
@@ -89,16 +70,38 @@ def calc_loss(log_p, logdet, image_size, n_bins):
     )
 
 
-
-
-def train(args, model, optimizer, classifier):
-    train_loader, val_loader, fid_loader = get_loaders(args.batch, args.img_size)
+def train(args, model, optimizer):
+    print(device)
+    #dataset = iter(sample_data(args.path, args.batch, args.img_size))
+    logger = NeptuneLogger(
+        api_token='eyJhcGlfYWRkcmVzcyI6Imh0dHBzOi8vdWkubmVwdHVuZS5haSIsImFwaV91cmwiOiJodHRwczovL3VpLm5lcHR1bmUuYWkiLCJhcGlfa2V5IjoiOWJkZjhkNDQtMjE1MS00MzRiLThlN2ItOWVhNzhlYTliMWRiIn0=',
+        project_name='sergevkim/glow',
+        experiment_name='glow',
+    )
+    dm = CelebADataModule(
+        data_path='./data/celeba',
+        num_workers=4,
+        batch_size=8,
+    )
+    dm.setup()
+    train_loader = dm.train_dataloader()
+    print(len(train_loader))
+    val_loader = dm.val_dataloader()
     n_bins = 2.0 ** args.n_bits
 
-    for ep_num in range(args.num_epochs): 
+    z_sample = []
+    z_shapes = calc_z_shapes(3, args.img_size, args.n_flow, args.n_block)
+    for z in z_shapes:
+        z_new = torch.randn(args.n_sample, *z) * args.temp
+        z_sample.append(z_new.to(device))
+
+    #with tqdm(range(args.iter)) as pbar:
+    #    for i in pbar:
+    #        image, _ = next(dataset)
+    for ep_num in range(args.n_epochs):
         model.train()
-        for index, image_attr in tqdm(enumerate(train_loader)): ################
-            image = image_attr[0].to("cuda")
+        for i, (image, _) in tqdm(enumerate(train_loader)):
+            image = image.to(device)
 
             image = image * 255
 
@@ -107,9 +110,9 @@ def train(args, model, optimizer, classifier):
 
             image = image / n_bins - 0.5
 
-            if index == 0:
+            if i == 0:
                 with torch.no_grad():
-                    log_p, logdet, _ = model(
+                    log_p, logdet, _ = model.module(
                         image + torch.rand_like(image) / n_bins
                     )
 
@@ -123,91 +126,55 @@ def train(args, model, optimizer, classifier):
             loss, log_p, log_det = calc_loss(log_p, logdet, args.img_size, n_bins)
             model.zero_grad()
             loss.backward()
-            # warmup_lr = args.lr * min(1, i * batch_size / (50000 * 10))
-            #warmup_lr = args.lr
-            #optimizer.param_groups[0]["lr"] = warmup_lr
+            warmup_lr = args.lr
+            optimizer.param_groups[0]["lr"] = warmup_lr
             optimizer.step()
 
-            # tracking
-            wandb.log({'Loss':loss.item(),
-                       'logP':log_p.item(),
-                       'logdet':log_det.item(),
-                      })
+            #pbar.set_description(
+            #    f"Loss: {loss.item():.5f}; logP: {log_p.item():.5f}; logdet: {log_det.item():.5f}; lr: {warmup_lr:.7f}"
+            #)
+            logger.log_metric(
+                'train/log_p',
+                log_p.item()
+            )
+            logger.log_metric(
+                'train/log_det',
+                log_det.item()
+            )
+            logger.log_metric(
+                'train/loss',
+                loss.item()
+            )
 
-        ########
-        #z_sample = []
-        #z_shapes = calc_z_shapes(3, args.img_size, args.n_flow, args.n_block)
-        #for z in z_shapes:
-        #    z_new = torch.randn(args.n_sample, *z) * args.temp
-        #    z_sample.append(z_new.to(device))
+            if i % 100 == 0:
+                with torch.no_grad():
+                    utils.save_image(
+                        model_single.reverse(z_sample).cpu().data,
+                        f"sample/{str(i + 1).zfill(6)}.png",
+                        normalize=True,
+                        nrow=10,
+                        range=(-0.5, 0.5),
+                    )
 
-        #sampled_image = model.reverse(z_sample)
-        #print(sampled_image)
-        #break
-        #######
-        torch.save(model.state_dict(), 'model_' + str(ep_num))
-        
-        with torch.no_grad():
-            
-            fid = calculate_fid(args, fid_loader, model, classifier)
-            wandb.log({'FID':fid})
+            if i == len(train_loader) // 2:
+                break
 
-
-            # deprecation
-            model.eval()
-
-            for ind, image_attr in enumerate(val_loader):  # batch = 1
-                if ind >= 10: break
-                image = image_attr[0].to('cuda')   # batch=1
-
-                _, _, z = model(image)
-
-                fake_image = model.reverse(z).detach().cpu()[0]
-                image = image.detach().cpu()[0]
-
-
-                z_sample = []
-                z_shapes = calc_z_shapes(3, args.img_size, args.n_flow, args.n_block)
-                for z in z_shapes:
-                    z_new = torch.randn(args.n_sample, *z) * args.temp
-                    z_sample.append(z_new.to('cuda'))
-
-                sampled_image = model.reverse(z_sample).detach().cpu()[0]
-
-                wandb.log({"samples": 
-                           [wandb.Image(image.permute(1, 2, 0).numpy(), 
-                                        caption='real'),
-                            wandb.Image(fake_image.permute(1, 2, 0).numpy(), 
-                                        caption='fake')]
-                          ,
-                           "GENERATED":
-                           [wandb.Image(sampled_image.permute(1, 2, 0).numpy(), 
-                            caption='generated from noise')]
-                           })
-
-        model.train()
-
+        torch.save(
+            model.state_dict(), f"checkpoint/model_{ep_num}.pt"
+        )
 
 if __name__ == "__main__":
     args = parser.parse_args()
     print(args)
-    set_seed(21)
-    
-    wandb.login(key='6aa2251ef1ea5e572e6a7608c0152db29bd9a294')
-    wandb_start(args, 'GLOW-128-3e-4')
 
-    model = Glow(
+    model_single = Glow(
         3, args.n_flow, args.n_block, affine=args.affine, conv_lu=not args.no_lu
     )
+    model = nn.DataParallel(model_single)
+    # model = model_single
     model = model.to(device)
-    print(count_parameters(model))
-    wandb.watch(model)
-    
+
     optimizer = optim.Adam(model.parameters(), lr=args.lr)
 
-    
-    # FID
-    classifier = InceptionV3()
-    classifier.to(device)
-    
-    train(args, model, optimizer, classifier)
+    train(args, model, optimizer)
+
