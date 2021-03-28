@@ -2,6 +2,7 @@ from typing import Optional
 
 import numpy as np
 import scipy.linalg as linalg
+import torch
 from torch import Tensor
 from torch.nn import Module
 from torch.utils.data import DataLoader
